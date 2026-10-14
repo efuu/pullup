@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 640" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="none" stroke="#111" stroke-width="1.5">
+  <text x="20" y="24" fill="#111" stroke="none" font-size="15" font-weight="bold">Sketch 2 — Plan page, before the day</text>
+  <rect x="20" y="40" width="300" height="580" rx="18"/>
+  <text x="40" y="76" fill="#111" stroke="none" font-size="16" font-weight="bold">KBBQ</text>
+  <text x="40" y="96" fill="#555" stroke="none">Koreana · Sat 6:00 pm · by Sam</text>
+  <rect x="40" y="112" width="260" height="28" rx="14"/>
+  <text x="170" y="131" fill="#111" stroke="none" text-anchor="middle">4 going · 1 maybe · 1 can't</text>
+  <text x="40" y="170" fill="#111" stroke="none">You (Dylan):</text>
+  <rect x="40" y="180" width="80" height="34" rx="6" fill="#111"/>
+  <text x="80" y="202" fill="#fff" stroke="none" text-anchor="middle">Going</text>
+  <rect x="130" y="180" width="80" height="34" rx="6"/>
+  <text x="170" y="202" fill="#111" stroke="none" text-anchor="middle">Maybe</text>
+  <rect x="220" y="180" width="80" height="34" rx="6"/>
+  <text x="260" y="202" fill="#111" stroke="none" text-anchor="middle">Can't</text>
+  <text x="40" y="236" fill="#555" stroke="none" font-size="11">maybes auto-flip to "can't" at 2:00 pm</text>
+  <line x1="40" y1="252" x2="300" y2="252"/>
+  <text x="40" y="276" fill="#111" stroke="none" font-weight="bold">Going</text>
+  <text x="56" y="298" fill="#111" stroke="none">Sam</text>
+  <rect x="90" y="287" width="72" height="16" rx="8"/>
+  <text x="126" y="299" fill="#111" stroke="none" text-anchor="middle" font-size="10">on time 5/5</text>
+  <text x="56" y="320" fill="#111" stroke="none">Dylan</text>
+  <rect x="90" y="309" width="72" height="16" rx="8"/>
+  <text x="126" y="321" fill="#111" stroke="none" text-anchor="middle" font-size="10">on time 4/5</text>
+  <text x="56" y="342" fill="#111" stroke="none">Priya</text>
+  <rect x="90" y="331" width="72" height="16" rx="8"/>
+  <text x="126" y="343" fill="#111" stroke="none" text-anchor="middle" font-size="10">on time 2/5</text>
+  <text x="56" y="364" fill="#111" stroke="none">Jordan</text>
+  <text x="90" y="364" fill="#777" stroke="none" font-size="10">new</text>
+  <text x="40" y="396" fill="#111" stroke="none" font-weight="bold">Maybe</text>
+  <text x="56" y="418" fill="#111" stroke="none">Kenny</text>
+  <text x="100" y="418" fill="#777" stroke="none" font-size="10">decide by 2:00 pm</text>
+  <text x="40" y="450" fill="#111" stroke="none" font-weight="bold">Can't</text>
+  <text x="56" y="472" fill="#111" stroke="none">Alex</text>
+  <line x1="40" y1="500" x2="300" y2="500"/>
+  <text x="40" y="524" fill="#111" stroke="none" font-size="12" text-decoration="underline">Copy link</text>
+  <text x="120" y="524" fill="#111" stroke="none" font-size="12" text-decoration="underline">Change time</text>
+  <text x="220" y="524" fill="#111" stroke="none" font-size="12" text-decoration="underline">Cancel plan</text>
+  <text x="40" y="544" fill="#555" stroke="none" font-size="11">"Change time" / "Cancel" only shown to organizer</text>
+  <line x1="340" y1="196" x2="305" y2="196" stroke-dasharray="3 3"/>
+  <text x="346" y="186" fill="#111" stroke="none" font-size="12">one tap; first visit asks</text>
+  <text x="346" y="202" fill="#111" stroke="none" font-size="12">only for your name</text>
+  <line x1="340" y1="300" x2="305" y2="300" stroke-dasharray="3 3"/>
+  <text x="346" y="290" fill="#111" stroke="none" font-size="12">on-time tag from past plans;</text>
+  <text x="346" y="306" fill="#111" stroke="none" font-size="12">no fines, no scores, just</text>
+  <text x="346" y="322" fill="#111" stroke="none" font-size="12">the record (sketch 4)</text>
+  <line x1="340" y1="418" x2="305" y2="418" stroke-dasharray="3 3"/>
+  <text x="346" y="408" fill="#111" stroke="none" font-size="12">"maybe" is allowed, but it</text>
+  <text x="346" y="424" fill="#111" stroke="none" font-size="12">has an expiry, so the</text>
+  <text x="346" y="440" fill="#111" stroke="none" font-size="12">headcount is real by 2 pm</text>
+</svg>

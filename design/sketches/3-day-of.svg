@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 640" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="none" stroke="#111" stroke-width="1.5">
+  <text x="20" y="24" fill="#111" stroke="none" font-size="15" font-weight="bold">Sketch 3 — Plan page, day of (same page, after 2 pm)</text>
+  <rect x="20" y="40" width="300" height="580" rx="18"/>
+  <text x="40" y="76" fill="#111" stroke="none" font-size="16" font-weight="bold">KBBQ</text>
+  <text x="40" y="96" fill="#555" stroke="none">Koreana · today 6:00 pm · 4 going</text>
+  <rect x="40" y="116" width="125" height="44" rx="6" fill="#111"/>
+  <text x="102" y="143" fill="#fff" stroke="none" text-anchor="middle" font-weight="bold">Pulling up</text>
+  <rect x="175" y="116" width="125" height="44" rx="6"/>
+  <text x="237" y="143" fill="#111" stroke="none" text-anchor="middle" font-weight="bold">Pulled up</text>
+  <rect x="40" y="170" width="260" height="30" rx="4" stroke-dasharray="4 3"/>
+  <text x="48" y="189" fill="#555" stroke="none" font-size="11">after "pulling up": left 5:50 · about [ 8 ] min away  (editable)</text>
+  <line x1="40" y1="220" x2="300" y2="220"/>
+  <text x="40" y="244" fill="#111" stroke="none" font-weight="bold">Who's where</text>
+  <text x="56" y="272" fill="#111" stroke="none">Dylan</text>
+  <text x="140" y="272" fill="#111" stroke="none">here</text>
+  <text x="230" y="272" fill="#555" stroke="none">5:58</text>
+  <text x="56" y="296" fill="#111" stroke="none">Sam</text>
+  <text x="140" y="296" fill="#111" stroke="none">here</text>
+  <text x="230" y="296" fill="#555" stroke="none">6:01</text>
+  <text x="56" y="320" fill="#111" stroke="none">Priya</text>
+  <text x="140" y="320" fill="#111" stroke="none">8 min away</text>
+  <text x="230" y="320" fill="#555" stroke="none">left 5:50</text>
+  <text x="56" y="344" fill="#111" stroke="none">Jordan</text>
+  <text x="140" y="344" fill="#777" stroke="none">hasn't left yet</text>
+  <line x1="40" y1="364" x2="300" y2="364" stroke-dasharray="2 3"/>
+  <text x="56" y="388" fill="#777" stroke="none">Alex</text>
+  <text x="140" y="388" fill="#777" stroke="none">can't make it</text>
+  <rect x="40" y="420" width="260" height="56" rx="6" stroke-dasharray="4 3"/>
+  <text x="48" y="440" fill="#111" stroke="none" font-size="12">Plan time 6:00 · 2 here · 1 on the way · 1 unknown</text>
+  <text x="48" y="458" fill="#555" stroke="none" font-size="11">(the status you'd otherwise have to text 4 people to get)</text>
+  <line x1="340" y1="140" x2="305" y2="140" stroke-dasharray="3 3"/>
+  <text x="346" y="130" fill="#111" stroke="none" font-size="12">two buttons, that's the whole</text>
+  <text x="346" y="146" fill="#111" stroke="none" font-size="12">day-of interaction; no location</text>
+  <text x="346" y="162" fill="#111" stroke="none" font-size="12">sharing, you self-report</text>
+  <line x1="340" y1="320" x2="305" y2="320" stroke-dasharray="3 3"/>
+  <text x="346" y="310" fill="#111" stroke="none" font-size="12">board updates live for</text>
+  <text x="346" y="326" fill="#111" stroke="none" font-size="12">everyone, no refresh;</text>
+  <text x="346" y="342" fill="#111" stroke="none" font-size="12">"hasn't left" is the honest</text>
+  <text x="346" y="358" fill="#111" stroke="none" font-size="12">default, not "omw"</text>
+  <line x1="340" y1="448" x2="305" y2="448" stroke-dasharray="3 3"/>
+  <text x="346" y="438" fill="#111" stroke="none" font-size="12">arrival after 6:00 is recorded</text>
+  <text x="346" y="454" fill="#111" stroke="none" font-size="12">as late on that person's</text>
+  <text x="346" y="470" fill="#111" stroke="none" font-size="12">record (sketch 4)</text>
+</svg>

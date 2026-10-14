@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 640" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="none" stroke="#111" stroke-width="1.5">
+  <text x="20" y="24" fill="#111" stroke="none" font-size="15" font-weight="bold">Sketch 4 — A person's record (tap a name)</text>
+  <rect x="20" y="40" width="300" height="580" rx="18"/>
+  <text x="40" y="76" fill="#111" stroke="none" font-size="16" font-weight="bold">Priya</text>
+  <text x="40" y="100" fill="#111" stroke="none">On time 2 of last 5 plans</text>
+  <rect x="40" y="112" width="52" height="12"/><rect x="40" y="112" width="52" height="12" fill="#111"/>
+  <rect x="92" y="112" width="52" height="12"/><rect x="92" y="112" width="52" height="12" fill="#111"/>
+  <rect x="144" y="112" width="52" height="12"/>
+  <rect x="196" y="112" width="52" height="12"/>
+  <rect x="248" y="112" width="52" height="12"/>
+  <text x="40" y="142" fill="#555" stroke="none" font-size="11">filled = on time, empty = late (arrived after plan time)</text>
+  <line x1="40" y1="160" x2="300" y2="160"/>
+  <text x="40" y="184" fill="#111" stroke="none" font-weight="bold">Recent plans</text>
+  <text x="56" y="210" fill="#111" stroke="none">KBBQ · Sat</text>
+  <text x="230" y="210" fill="#111" stroke="none">+9 min</text>
+  <text x="56" y="234" fill="#111" stroke="none">Bowling · Sep 28</text>
+  <text x="230" y="234" fill="#111" stroke="none">+31 min</text>
+  <text x="56" y="258" fill="#111" stroke="none">Dim sum · Sep 20</text>
+  <text x="230" y="258" fill="#111" stroke="none">on time</text>
+  <text x="56" y="282" fill="#111" stroke="none">Movie · Sep 14</text>
+  <text x="230" y="282" fill="#111" stroke="none">+12 min</text>
+  <text x="56" y="306" fill="#111" stroke="none">Study sesh · Sep 10</text>
+  <text x="230" y="306" fill="#111" stroke="none">on time</text>
+  <line x1="40" y1="330" x2="300" y2="330"/>
+  <text x="40" y="354" fill="#555" stroke="none" font-size="11">Only plans you were both on are listed.</text>
+  <text x="40" y="370" fill="#555" stroke="none" font-size="11">No ranking, no fines, no notifications to Priya.</text>
+  <line x1="340" y1="106" x2="305" y2="106" stroke-dasharray="3 3"/>
+  <text x="346" y="96" fill="#111" stroke="none" font-size="12">this number is what shows as</text>
+  <text x="346" y="112" fill="#111" stroke="none" font-size="12">the small tag next to names</text>
+  <text x="346" y="128" fill="#111" stroke="none" font-size="12">on the plan page (sketch 2)</text>
+  <line x1="340" y1="234" x2="305" y2="234" stroke-dasharray="3 3"/>
+  <text x="346" y="224" fill="#111" stroke="none" font-size="12">"late" is mechanical: arrival</text>
+  <text x="346" y="240" fill="#111" stroke="none" font-size="12">tap time minus plan time.</text>
+  <text x="346" y="256" fill="#111" stroke="none" font-size="12">no one types judgments</text>
+  <line x1="340" y1="362" x2="305" y2="362" stroke-dasharray="3 3"/>
+  <text x="346" y="352" fill="#111" stroke="none" font-size="12">visibility limited to people</text>
+  <text x="346" y="368" fill="#111" stroke="none" font-size="12">who've shared a plan with you,</text>
+  <text x="346" y="384" fill="#111" stroke="none" font-size="12">so it's social not public</text>
+</svg>
