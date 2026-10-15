@@ -69,3 +69,7 @@ reaction viewRecord
 **ArrivalTracking.** The pulling-up / pulled-up board, also generic over `Event`, and has the same instantiation as RSVPing. It is separate from RSVPing because the two have different lifecycles (before the day vs. on the day) and different rules (a maybe expires, a status doesn't)
 
 **PunctualityTracking.** The on-time record, stores minutes late as a plain number, computed by the `recordArrival` reaction, rather than storing arrival times and plan times itself. This is so that it keeps it independent of both Planning and ArrivalTracking. `User` and `Event` instantiated as above.
+
+## Changes made while implementing (P2)
+
+The specs in [`concepts/`](concepts/) are current; the reactions above are the P1 sketch. What changed and why is in [implementation-notes.md](implementation-notes.md). In short: time-dependent actions take a `now` input, maybes expire when the page is viewed rather than on a timer, the on-time record takes the two instants and computes lateness itself, the organizer-is-going reaction fires on `RSVPing.open`, and the shared-plan rule is a query (`_sharedEvents`) wrapped by the view. The exact reactions, endpoints, views and formers are documented in [`compositions/`](compositions/).
