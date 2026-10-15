@@ -6,12 +6,13 @@ Let one person propose a specific outing (what, where, when) that everyone else 
 
 ## Principle
 
-After an organizer creates a plan with a place and a start time, anyone with the plan can see those details, until the organizer reschedules or cancels it.
+After an organizer creates a plan with a place and a start time, anyone with the plan can read those details, until the organizer reschedules or cancels it. Only the organizer can change or cancel it.
 
 ## Types
 
 ```types
 external User
+  The person who organizes a plan.
 ```
 
 ## State
@@ -28,41 +29,52 @@ a set of Plans with
 ## Actions
 
 ```actions
-create(organizer: User, title: String, place: String, startTime: DateTime) : returns (plan: Plan)
-  where startTime is in the future
+create(organizer: User, title: String, place: String, startTime: DateTime, now: DateTime) : returns (plan: Plan)
+  where title or place is blank, or either is longer than 80 characters
   then
-    creates a plan with these details, not cancelled
+    refuses INVALID_DETAILS "Give the plan a title and a place, each at most 80 characters."
+  where startTime is not after now
+  then
+    refuses START_IN_PAST "Pick a start time that hasn't happened yet."
+  where the details are accepted
+  then
+    add a new plan with organizer, title, place, startTime, and cancelled false
     returns plan
-  where startTime is not in the future
-  then
-    refuses START_IN_PAST "Pick a time that hasn't happened yet."
 
 reschedule(organizer: User, plan: Plan, startTime: DateTime) : returns ()
-  where plan exists, is not cancelled, and organizer is the plan's organizer
+  where plan is unknown
   then
-    sets the plan's startTime
-    returns
-  where plan exists but organizer is not the plan's organizer
+    refuses UNKNOWN_PLAN "There is no such plan."
+  where organizer is not the plan's organizer
   then
     refuses NOT_ORGANIZER "Only the organizer can change the plan."
+  where plan is cancelled
+  then
+    refuses PLAN_CANCELLED "This plan was cancelled."
+  where plan is known, not cancelled, and organizer is its organizer
+  then
+    set the plan's startTime to startTime
+    returns
 
 cancel(organizer: User, plan: Plan) : returns ()
-  where plan exists, is not cancelled, and organizer is the plan's organizer
+  where plan is unknown
   then
-    sets cancelled to true
-    returns
-  where plan exists but organizer is not the plan's organizer
+    refuses UNKNOWN_PLAN "There is no such plan."
+  where organizer is not the plan's organizer
   then
     refuses NOT_ORGANIZER "Only the organizer can cancel the plan."
+  where plan is cancelled
+  then
+    refuses PLAN_CANCELLED "This plan was already cancelled."
+  where plan is known, not cancelled, and organizer is its organizer
+  then
+    set cancelled to true
+    returns
 ```
 
 ## Queries
 
 ```queries
-_details(plan: Plan) : one (organizer: User, title: String, place: String, startTime: DateTime, cancelled: Flag)
-  Everything shown in the plan page header.
+_details(plan: Plan) : optional (organizer: User, title: String, place: String, startTime: DateTime, cancelled: Flag)
+  Answers the plan's current details, and no row for an unknown plan.
 ```
-
-## Notes
-
-Organizer-only edits are enforced here, inside the actions, by taking the acting user as an argument. The reaction layer only has to translate a browser secret into a User (see Identifying) and pass it along. Deleting a plan is intentionally absent: cancelling keeps the history that the on-time record depends on.

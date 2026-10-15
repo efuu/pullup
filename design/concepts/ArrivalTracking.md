@@ -6,69 +6,78 @@ Show, truthfully and live, who has left for an event and who has arrived.
 
 ## Principle
 
-A user who has done nothing is shown as not left. After they tap leave they are shown as on the way, with how long ago they left and roughly how far away they are. After they tap arrive they are shown as here, with the arrival time.
+A user who has done nothing is shown as not having left. After they say they are leaving they are shown as on the way, with when they left and roughly how far away they are. After they say they have arrived they are shown as here, with the arrival time.
 
 ## Types
 
 ```types
 external User
+  The person travelling.
 external Event
+  The event they are travelling to.
 ```
 
 ## State
 
 ```state
 a set of Statuses with
-  a User
-  an Event
+  a user User
+  an event Event
   a leftAt DateTime
-  an optional etaMinutes Number
-  an optional arrivedAt DateTime
+  an etaMinutes Number
+  a arrived Flag
+  an arrivedAt DateTime
   unique user and event
+Rule: arrivedAt is meaningful only while arrived is true.
 ```
 
 ## Actions
 
 ```actions
-leave(user: User, event: Event, etaMinutes?: Number) : returns ()
-  where this user has no status for the event
+leave(user: User, event: Event, etaMinutes: Number, now: DateTime) : returns ()
+  where etaMinutes is negative or more than 600
   then
-    creates a status with leftAt now and the given etaMinutes, or none if omitted
-    returns
-  where this user already has a status for the event
+    refuses INVALID_ETA "Give an estimate between 0 and 600 minutes."
+  where this user already has a status for event
   then
     refuses ALREADY_LEFT "You already said you left."
+  where this user has no status for event and etaMinutes is accepted
+  then
+    add a status for user and event with leftAt now, etaMinutes, and arrived false
+    returns
 
 updateEta(user: User, event: Event, etaMinutes: Number) : returns ()
-  where this user has a status for the event with no arrivedAt
+  where etaMinutes is negative or more than 600
   then
-    sets etaMinutes
+    refuses INVALID_ETA "Give an estimate between 0 and 600 minutes."
+  where this user has no status for event, or has already arrived
+  then
+    refuses NOT_ON_THE_WAY "Say you're leaving first."
+  where this user is on the way to event
+  then
+    set etaMinutes
     returns
-  where this user has no status for the event, or has already arrived
-  then
-    refuses NOT_ON_THE_WAY "Tap leaving first."
 
-arrive(user: User, event: Event) : returns (arrivedAt: DateTime)
-  where this user has no status for the event
-  then
-    creates a status with leftAt now and arrivedAt now
-    returns arrivedAt
-  where this user has a status for the event with no arrivedAt
-  then
-    sets arrivedAt to now
-    returns arrivedAt
-  where this user has a status for the event with an arrivedAt
+arrive(user: User, event: Event, now: DateTime) : returns (arrivedAt: DateTime)
+  where this user has a status for event with arrived true
   then
     refuses ALREADY_ARRIVED "You're already marked as here."
+  where this user has no status for event
+  then
+    add a status for user and event with leftAt now, etaMinutes 0, arrived true, and arrivedAt now
+    returns arrivedAt
+  where this user is on the way to event
+  then
+    set arrived to true and arrivedAt to now
+    returns arrivedAt
 ```
 
 ## Queries
 
 ```queries
-_board(event: Event) : many (user: User, leftAt: DateTime, etaMinutes: Number, arrivedAt: DateTime)
-  One row per user who has left or arrived; anyone not listed hasn't left yet.
+_onTheWay(event: Event) : many (user: User, leftAt: DateTime, etaMinutes: Number)
+  Answers everyone who has left for event but not arrived, earliest departure first, and no rows when nobody is on the way.
+
+_arrived(event: Event) : many (user: User, leftAt: DateTime, arrivedAt: DateTime)
+  Answers everyone who has arrived at event, earliest arrival first, and no rows when nobody has arrived.
 ```
-
-## Notes
-
-Everything is self-reported, on purpose. The comparables that share live location (Find My, Life360) are exactly the ones friend groups refuse to adopt. The honesty comes from the default: you cannot be "on the way" without having tapped leave at a specific time that everyone can see. Tapping arrive without ever tapping leave is allowed (people forget) and just records both at once.

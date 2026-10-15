@@ -1,9 +1,6 @@
-# Types
+# Application types
 
-```types
-concrete DateTime
-  A point in time.
-```
+Every concept that needs a person uses the identity that Identifying hands out, and every concept that needs an event uses a Planning plan. There are no application-specific concrete types: names, titles and places are plain strings owned by the concept that stores them.
 
 ```instances
 instantiate Identifying
