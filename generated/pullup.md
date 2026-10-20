@@ -111,16 +111,17 @@ Defined in [RSVPing](../design/concepts/RSVPing.md), line 1.
 
 - `open(event: Event, decideBy: DateTime) : returns ()`
   - Refuses `ALREADY_OPEN`: Responses are already open for this event.
+- `close(event: Event) : returns ()`
+  - Refuses `NOT_OPEN`: This event is not taking responses.
 - `respond(user: User, event: Event, status: Status, now: DateTime) : returns ()`
   - Refuses `NOT_OPEN`: This event is not taking responses.
   - Refuses `MAYBE_CLOSED`: It's past the decide-by time, so pick going or can't.
-- `expireMaybes(event: Event, now: DateTime) : returns (expired: Number)`
-  - Refuses `NOT_OPEN`: This event is not taking responses.
 
 #### Queries
 
 - `_responses(event: Event) : many (user: User, status: Status)`
-- `_decideBy(event: Event) : optional (decideBy: DateTime)`
+- `_standing(event: Event, now: DateTime) : many (user: User, status: Status, lapsed: Flag)`
+- `_decideBy(event: Event) : optional (decideBy: DateTime, closed: Flag)`
 - `_eventsOf(user: User) : many (event: Event, status: Status)`
 - `_sharedEvents(user: User, other: User) : many (event: Event)`
 
@@ -152,7 +153,7 @@ _the authored explanation; this section records the generated shape._
 ### the plan list of (user)
 
 Authored path: `Plans.Viewing.PlanList`.
-- Covered by [Plans](../design/compositions/Plans.md), line 33.
+- Covered by [Plans](../design/compositions/Plans.md), line 36.
 
 ```former
 Former "the plan list of (user)" — inputs (user); bindings (event, status, title, place, startTime, cancelled, organizer); promises exactly one record — forms:
@@ -169,17 +170,17 @@ Former "the plan list of (user)" — inputs (user); bindings (event, status, tit
         title
 ```
 
-### the plan page (plan)
+### the plan page (plan) as read at (now)
 
 Authored path: `Plans.Viewing.PlanPage`.
-- Covered by [Plans](../design/compositions/Plans.md), line 24.
+- Covered by [Plans](../design/compositions/Plans.md), line 22.
 
 ```former
-Former "the plan page (plan)" — inputs (plan); bindings (organizer, organizerName, title, place, startTime, cancelled, decideBy, rUser, rName, rStatus, rOnTime, rTotal, wUser, wName, wLeftAt, wEta, aUser, aName, aLeftAt, aArrivedAt); promises exactly one record — forms:
+Former "the plan page (plan) as read at (now)" — inputs (plan, now); bindings (organizer, organizerName, title, place, startTime, cancelled, decideBy, closed, rUser, rName, rStatus, rLapsed, rOnTime, rTotal, wUser, wName, wLeftAt, wEta, aUser, aName, aLeftAt, aArrivedAt); promises exactly one record — forms:
   a record of
     where Planning._details (plan) has (cancelled, organizer, place, startTime, title)
     where Identifying._name (user: organizer) has (name: organizerName)
-    where RSVPing._decideBy (event: plan) has (decideBy)
+    where RSVPing._decideBy (event: plan) has (closed, decideBy)
     arrived: each ArrivalTracking._arrived (event: plan) has (arrivedAt: aArrivedAt, leftAt: aLeftAt, user: aUser)
       where Identifying._name (user: aUser) has (name: aName)
       form a record of
@@ -188,6 +189,7 @@ Former "the plan page (plan)" — inputs (plan); bindings (organizer, organizerN
         name: aName
         user: aUser
     cancelled
+    closed
     decideBy
     onTheWay: each ArrivalTracking._onTheWay (event: plan) has (etaMinutes: wEta, leftAt: wLeftAt, user: wUser)
       where Identifying._name (user: wUser) has (name: wName)
@@ -200,10 +202,11 @@ Former "the plan page (plan)" — inputs (plan); bindings (organizer, organizerN
     organizerName
     place
     plan
-    responses: each RSVPing._responses (event: plan) has (status: rStatus, user: rUser)
+    responses: each RSVPing._standing (event: plan, now) has (lapsed: rLapsed, status: rStatus, user: rUser)
       where Identifying._name (user: rUser) has (name: rName)
       where PunctualityTracking._summary (limit: 5, user: rUser) has (onTime: rOnTime, total: rTotal)
       form a record of
+        lapsed: rLapsed
         name: rName
         onTime: rOnTime
         status: rStatus
@@ -311,11 +314,51 @@ then
   RequestBoundary.respond (name, requestId, user)
 ```
 
+### Identity.Claiming.Rename
+
+Authored path: `Identity.Claiming.Rename`.
+- Covered by [Identity](../design/compositions/Identity.md), line 20.
+- Covered by [Identity](../design/compositions/Identity.md), line 25.
+
+```reaction
+when RequestBoundary.request (name, path: "/me/rename", requestId, secret)
+then
+  Identifying.identify (secret)
+```
+
+### Identity.Claiming.Rename#2
+
+Authored path: `Identity.Claiming.Rename`.
+- Covered by [Identity](../design/compositions/Identity.md), line 20.
+- Covered by [Identity](../design/compositions/Identity.md), line 25.
+
+```reaction
+when Identifying.identify (secret, user), asked by Identity.Claiming.Rename
+where
+  earlier, RequestBoundary.request (name, path: "/me/rename", requestId, secret)
+then
+  Identifying.rename (name, user)
+```
+
+### Identity.Claiming.Rename#3
+
+Authored path: `Identity.Claiming.Rename`.
+- Covered by [Identity](../design/compositions/Identity.md), line 20.
+- Covered by [Identity](../design/compositions/Identity.md), line 25.
+
+```reaction
+when Identifying.rename (name, user), asked by Identity.Claiming.Rename#2
+where
+  earlier, RequestBoundary.request (name, path: "/me/rename", requestId, secret)
+then
+  RequestBoundary.respond (name, requestId, user)
+```
+
 ### Plans.Arriving.Arrive
 
 Authored path: `Plans.Arriving.Arrive`.
-- Covered by [Plans](../design/compositions/Plans.md), line 60.
-- Covered by [Plans](../design/compositions/Plans.md), line 68.
+- Covered by [Plans](../design/compositions/Plans.md), line 67.
+- Covered by [Plans](../design/compositions/Plans.md), line 76.
 
 ```reaction
 when RequestBoundary.request (path: "/plans/arrive", plan, requestId, secret)
@@ -328,8 +371,8 @@ then
 ### Plans.Arriving.Arrive#2
 
 Authored path: `Plans.Arriving.Arrive`.
-- Covered by [Plans](../design/compositions/Plans.md), line 60.
-- Covered by [Plans](../design/compositions/Plans.md), line 68.
+- Covered by [Plans](../design/compositions/Plans.md), line 67.
+- Covered by [Plans](../design/compositions/Plans.md), line 76.
 
 ```reaction
 when Identifying.identify (secret, user), asked by Plans.Arriving.Arrive
@@ -343,8 +386,8 @@ then
 ### Plans.Arriving.Arrive#3
 
 Authored path: `Plans.Arriving.Arrive`.
-- Covered by [Plans](../design/compositions/Plans.md), line 60.
-- Covered by [Plans](../design/compositions/Plans.md), line 68.
+- Covered by [Plans](../design/compositions/Plans.md), line 67.
+- Covered by [Plans](../design/compositions/Plans.md), line 76.
 
 ```reaction
 when ArrivalTracking.arrive (event: plan, now: instant, user, arrivedAt), asked by Plans.Arriving.Arrive#2
@@ -357,8 +400,8 @@ then
 ### Plans.Arriving.Leave
 
 Authored path: `Plans.Arriving.Leave`.
-- Covered by [Plans](../design/compositions/Plans.md), line 59.
-- Covered by [Plans](../design/compositions/Plans.md), line 67.
+- Covered by [Plans](../design/compositions/Plans.md), line 65.
+- Covered by [Plans](../design/compositions/Plans.md), line 74.
 
 ```reaction
 when RequestBoundary.request (etaMinutes, path: "/plans/leave", plan, requestId, secret)
@@ -371,8 +414,8 @@ then
 ### Plans.Arriving.Leave#2
 
 Authored path: `Plans.Arriving.Leave`.
-- Covered by [Plans](../design/compositions/Plans.md), line 59.
-- Covered by [Plans](../design/compositions/Plans.md), line 67.
+- Covered by [Plans](../design/compositions/Plans.md), line 65.
+- Covered by [Plans](../design/compositions/Plans.md), line 74.
 
 ```reaction
 when Identifying.identify (secret, user), asked by Plans.Arriving.Leave
@@ -386,8 +429,8 @@ then
 ### Plans.Arriving.Leave#3
 
 Authored path: `Plans.Arriving.Leave`.
-- Covered by [Plans](../design/compositions/Plans.md), line 59.
-- Covered by [Plans](../design/compositions/Plans.md), line 67.
+- Covered by [Plans](../design/compositions/Plans.md), line 65.
+- Covered by [Plans](../design/compositions/Plans.md), line 74.
 
 ```reaction
 when ArrivalTracking.leave (etaMinutes, event: plan, now: instant, user), asked by Plans.Arriving.Leave#2
@@ -400,7 +443,7 @@ then
 ### Plans.Arriving.RecordArrival
 
 Authored path: `Plans.Arriving.RecordArrival`.
-- Covered by [Plans](../design/compositions/Plans.md), line 61.
+- Covered by [Plans](../design/compositions/Plans.md), line 68.
 
 ```reaction
 when ArrivalTracking.arrive (event, user, arrivedAt)
@@ -408,6 +451,46 @@ where
   Planning._details (plan: event) has (startTime)
 then
   PunctualityTracking.record (arrivedAt, dueAt: startTime, event, user)
+```
+
+### Plans.Arriving.UpdateEta
+
+Authored path: `Plans.Arriving.UpdateEta`.
+- Covered by [Plans](../design/compositions/Plans.md), line 66.
+- Covered by [Plans](../design/compositions/Plans.md), line 75.
+
+```reaction
+when RequestBoundary.request (etaMinutes, path: "/plans/eta", plan, requestId, secret)
+then
+  Identifying.identify (secret)
+```
+
+### Plans.Arriving.UpdateEta#2
+
+Authored path: `Plans.Arriving.UpdateEta`.
+- Covered by [Plans](../design/compositions/Plans.md), line 66.
+- Covered by [Plans](../design/compositions/Plans.md), line 75.
+
+```reaction
+when Identifying.identify (secret, user), asked by Plans.Arriving.UpdateEta
+where
+  earlier, RequestBoundary.request (etaMinutes, path: "/plans/eta", plan, requestId, secret)
+then
+  ArrivalTracking.updateEta (etaMinutes, event: plan, user)
+```
+
+### Plans.Arriving.UpdateEta#3
+
+Authored path: `Plans.Arriving.UpdateEta`.
+- Covered by [Plans](../design/compositions/Plans.md), line 66.
+- Covered by [Plans](../design/compositions/Plans.md), line 75.
+
+```reaction
+when ArrivalTracking.updateEta (etaMinutes, event: plan, user), asked by Plans.Arriving.UpdateEta#2
+where
+  earlier, RequestBoundary.request (etaMinutes, path: "/plans/eta", plan, requestId, secret)
+then
+  RequestBoundary.respond (etaMinutes, plan, requestId)
 ```
 
 ### Plans.Creating.CreatePlan
@@ -481,11 +564,22 @@ then
   RSVPing.respond (event, now: instant, status: "GOING", user: organizer)
 ```
 
+### Plans.Managing.CancelClosesResponses
+
+Authored path: `Plans.Managing.CancelClosesResponses`.
+- Covered by [Plans](../design/compositions/Plans.md), line 55.
+
+```reaction
+when Planning.cancel (plan)
+then
+  RSVPing.close (event: plan)
+```
+
 ### Plans.Managing.CancelPlan
 
 Authored path: `Plans.Managing.CancelPlan`.
-- Covered by [Plans](../design/compositions/Plans.md), line 49.
-- Covered by [Plans](../design/compositions/Plans.md), line 54.
+- Covered by [Plans](../design/compositions/Plans.md), line 53.
+- Covered by [Plans](../design/compositions/Plans.md), line 60.
 
 ```reaction
 when RequestBoundary.request (path: "/plans/cancel", plan, requestId, secret)
@@ -496,8 +590,8 @@ then
 ### Plans.Managing.CancelPlan#2
 
 Authored path: `Plans.Managing.CancelPlan`.
-- Covered by [Plans](../design/compositions/Plans.md), line 49.
-- Covered by [Plans](../design/compositions/Plans.md), line 54.
+- Covered by [Plans](../design/compositions/Plans.md), line 53.
+- Covered by [Plans](../design/compositions/Plans.md), line 60.
 
 ```reaction
 when Identifying.identify (secret, user), asked by Plans.Managing.CancelPlan
@@ -510,8 +604,8 @@ then
 ### Plans.Managing.CancelPlan#3
 
 Authored path: `Plans.Managing.CancelPlan`.
-- Covered by [Plans](../design/compositions/Plans.md), line 49.
-- Covered by [Plans](../design/compositions/Plans.md), line 54.
+- Covered by [Plans](../design/compositions/Plans.md), line 53.
+- Covered by [Plans](../design/compositions/Plans.md), line 60.
 
 ```reaction
 when Planning.cancel (organizer: user, plan), asked by Plans.Managing.CancelPlan#2
@@ -521,11 +615,51 @@ then
   RequestBoundary.respond (plan, requestId)
 ```
 
+### Plans.Managing.ReschedulePlan
+
+Authored path: `Plans.Managing.ReschedulePlan`.
+- Covered by [Plans](../design/compositions/Plans.md), line 52.
+- Covered by [Plans](../design/compositions/Plans.md), line 59.
+
+```reaction
+when RequestBoundary.request (path: "/plans/reschedule", plan, requestId, secret, startTime)
+then
+  Identifying.identify (secret)
+```
+
+### Plans.Managing.ReschedulePlan#2
+
+Authored path: `Plans.Managing.ReschedulePlan`.
+- Covered by [Plans](../design/compositions/Plans.md), line 52.
+- Covered by [Plans](../design/compositions/Plans.md), line 59.
+
+```reaction
+when Identifying.identify (secret, user), asked by Plans.Managing.ReschedulePlan
+where
+  earlier, RequestBoundary.request (path: "/plans/reschedule", plan, requestId, secret, startTime)
+then
+  Planning.reschedule (organizer: user, plan, startTime)
+```
+
+### Plans.Managing.ReschedulePlan#3
+
+Authored path: `Plans.Managing.ReschedulePlan`.
+- Covered by [Plans](../design/compositions/Plans.md), line 52.
+- Covered by [Plans](../design/compositions/Plans.md), line 59.
+
+```reaction
+when Planning.reschedule (organizer: user, plan, startTime), asked by Plans.Managing.ReschedulePlan#2
+where
+  earlier, RequestBoundary.request (path: "/plans/reschedule", plan, requestId, secret, startTime)
+then
+  RequestBoundary.respond (plan, requestId, startTime)
+```
+
 ### Plans.Responding.Respond
 
 Authored path: `Plans.Responding.Respond`.
-- Covered by [Plans](../design/compositions/Plans.md), line 42.
-- Covered by [Plans](../design/compositions/Plans.md), line 46.
+- Covered by [Plans](../design/compositions/Plans.md), line 45.
+- Covered by [Plans](../design/compositions/Plans.md), line 49.
 
 ```reaction
 when RequestBoundary.request (path: "/plans/respond", plan, requestId, secret, status)
@@ -538,8 +672,8 @@ then
 ### Plans.Responding.Respond#2
 
 Authored path: `Plans.Responding.Respond`.
-- Covered by [Plans](../design/compositions/Plans.md), line 42.
-- Covered by [Plans](../design/compositions/Plans.md), line 46.
+- Covered by [Plans](../design/compositions/Plans.md), line 45.
+- Covered by [Plans](../design/compositions/Plans.md), line 49.
 
 ```reaction
 when Identifying.identify (secret, user), asked by Plans.Responding.Respond
@@ -553,8 +687,8 @@ then
 ### Plans.Responding.Respond#3
 
 Authored path: `Plans.Responding.Respond`.
-- Covered by [Plans](../design/compositions/Plans.md), line 42.
-- Covered by [Plans](../design/compositions/Plans.md), line 46.
+- Covered by [Plans](../design/compositions/Plans.md), line 45.
+- Covered by [Plans](../design/compositions/Plans.md), line 49.
 
 ```reaction
 when RSVPing.respond (event: plan, now: instant, status, user), asked by Plans.Responding.Respond#2
@@ -567,8 +701,8 @@ then
 ### Plans.Viewing.MyPlans
 
 Authored path: `Plans.Viewing.MyPlans`.
-- Covered by [Plans](../design/compositions/Plans.md), line 32.
-- Covered by [Plans](../design/compositions/Plans.md), line 37.
+- Covered by [Plans](../design/compositions/Plans.md), line 35.
+- Covered by [Plans](../design/compositions/Plans.md), line 40.
 
 ```reaction
 when RequestBoundary.request (path: "/plans/mine", requestId, secret)
@@ -579,8 +713,8 @@ then
 ### Plans.Viewing.MyPlans#2
 
 Authored path: `Plans.Viewing.MyPlans`.
-- Covered by [Plans](../design/compositions/Plans.md), line 32.
-- Covered by [Plans](../design/compositions/Plans.md), line 37.
+- Covered by [Plans](../design/compositions/Plans.md), line 35.
+- Covered by [Plans](../design/compositions/Plans.md), line 40.
 
 ```reaction
 when Identifying.identify (secret, user), asked by Plans.Viewing.MyPlans
@@ -594,7 +728,7 @@ then
 
 Authored path: `Plans.Viewing.ViewPlan`.
 - Covered by [Plans](../design/compositions/Plans.md), line 21.
-- Covered by [Plans](../design/compositions/Plans.md), line 29.
+- Covered by [Plans](../design/compositions/Plans.md), line 32.
 
 ```reaction
 when RequestBoundary.request (path: "/plans/view", plan, requestId, secret)
@@ -608,7 +742,7 @@ then
 
 Authored path: `Plans.Viewing.ViewPlan`.
 - Covered by [Plans](../design/compositions/Plans.md), line 21.
-- Covered by [Plans](../design/compositions/Plans.md), line 29.
+- Covered by [Plans](../design/compositions/Plans.md), line 32.
 
 ```reaction
 when Identifying.identify (secret, user), asked by Plans.Viewing.ViewPlan
@@ -616,22 +750,7 @@ where
   earlier, RequestBoundary.request (path: "/plans/view", plan, requestId, secret)
   instant is the current flow's instant
 then
-  RSVPing.expireMaybes (event: plan, now: instant)
-```
-
-### Plans.Viewing.ViewPlan#3
-
-Authored path: `Plans.Viewing.ViewPlan`.
-- Covered by [Plans](../design/compositions/Plans.md), line 21.
-- Covered by [Plans](../design/compositions/Plans.md), line 29.
-
-```reaction
-when RSVPing.expireMaybes (event: plan, now: instant), asked by Plans.Viewing.ViewPlan#2
-where
-  earlier, Identifying.identify (secret, user), asked by Plans.Viewing.ViewPlan
-  earlier, RequestBoundary.request (path: "/plans/view", plan, requestId, secret)
-then
-  RequestBoundary.respond (page: former "the plan page (plan)" with (plan), requestId, viewer: user)
+  RequestBoundary.respond (page: former "the plan page (plan) as read at (now)" with (now: instant, plan), requestId, viewer: user)
 ```
 
 ### Records.Viewing.ViewRecord
@@ -685,11 +804,14 @@ not listed here have no explicit input contract.
 
 - `/me/claim` — requires `name`
 - `/me/current` — requires `secret`
+- `/me/rename` — requires `secret`, `name`
 - `/plans/arrive` — requires `secret`, `plan`
 - `/plans/cancel` — requires `secret`, `plan`
 - `/plans/create` — requires `secret`, `title`, `place`, `startTime`, `decideBy`
+- `/plans/eta` — requires `secret`, `plan`, `etaMinutes`
 - `/plans/leave` — requires `secret`, `plan`, `etaMinutes`
 - `/plans/mine` — requires `secret`
+- `/plans/reschedule` — requires `secret`, `plan`, `startTime`
 - `/plans/respond` — requires `secret`, `plan`, `status`
 - `/plans/view` — requires `secret`, `plan`
 - `/records/view` — requires `secret`, `target`

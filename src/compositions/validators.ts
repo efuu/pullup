@@ -79,3 +79,13 @@ export const recordInput = validator(
   (v) => hasOnly(v, ["secret", "target"]) && secret(v.secret) && id(v.target),
   "secret and target must be bounded strings",
 );
+
+export const rescheduleInput = validator(
+  (v) => hasOnly(v, ["secret", "plan", "startTime"]) && secret(v.secret) && id(v.plan) && time(v.startTime),
+  "startTime must be a time",
+);
+
+export const renameInput = validator(
+  (v) => hasOnly(v, ["secret", "name"]) && secret(v.secret) && typeof v.name === "string" && v.name.length <= 40,
+  "name must be a string of at most 40 characters",
+);

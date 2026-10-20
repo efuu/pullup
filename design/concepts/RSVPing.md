@@ -2,11 +2,11 @@
 
 ## Purpose
 
-Produce a reliable headcount for an event by letting people say "maybe," but only until a deadline.
+Prevent hosts and attendees from acting on a headcount that undecided answers have quietly inflated, so nobody books for eight, waits for six, and eats with four.
 
 ## Principle
 
-After responses are opened for an event with a decide-by time, each user can answer going, maybe, or no, and change their answer. Once the decide-by time has passed, every remaining maybe becomes no, so from then on the going users are the headcount.
+After responses are opened for an event with a decide-by time, each user can answer going, maybe, or no, and change their answer. Up to the decide-by time a maybe is an honest "undecided". After it, a maybe that was never updated is read as not coming wherever attendance is counted, but the answer itself is kept: the person still said maybe, and the host can see who never decided. Nobody can newly answer maybe after the decide-by time. When the event is closed, no further responses are taken, but the ones given stay readable.
 
 ## Types
 
@@ -16,7 +16,7 @@ external User
 external Event
   The thing being responded to.
 Status is GOING or MAYBE or NO
-  Whether the user is coming.
+  What the person said.
 ```
 
 ## State
@@ -24,6 +24,7 @@ Status is GOING or MAYBE or NO
 ```state
 a set of Events with
   a decideBy DateTime
+  a closed Flag
 
 a set of Responses with
   a user User
@@ -41,11 +42,20 @@ open(event: Event, decideBy: DateTime) : returns ()
     refuses ALREADY_OPEN "Responses are already open for this event."
   where responses are not yet open for event
   then
-    add event with decideBy
+    add event with decideBy and closed false
+    returns
+
+close(event: Event) : returns ()
+  where responses were never opened for event
+  then
+    refuses NOT_OPEN "This event is not taking responses."
+  where responses are open for event
+  then
+    set closed to true
     returns
 
 respond(user: User, event: Event, status: Status, now: DateTime) : returns ()
-  where responses are not open for event
+  where responses were never opened for event, or event is closed
   then
     refuses NOT_OPEN "This event is not taking responses."
   where status is MAYBE and the event's decideBy is not after now
@@ -55,30 +65,19 @@ respond(user: User, event: Event, status: Status, now: DateTime) : returns ()
   then
     set this user's response for event to status, replacing any earlier response
     returns
-
-expireMaybes(event: Event, now: DateTime) : returns (expired: Number)
-  where responses are not open for event
-  then
-    refuses NOT_OPEN "This event is not taking responses."
-  where the event's decideBy is after now
-  then
-    set expired to 0
-    returns expired
-  where the event's decideBy is not after now
-  then
-    set every MAYBE response for event to NO
-    set expired to the number of responses changed
-    returns expired
 ```
 
 ## Queries
 
 ```queries
 _responses(event: Event) : many (user: User, status: Status)
-  Answers every response for event in the order they were first given, and no rows when nobody has responded.
+  Answers every response for event as given, in the order they were first given, and no rows when nobody has responded.
 
-_decideBy(event: Event) : optional (decideBy: DateTime)
-  Answers the event's decide-by time, and no row when responses were never opened.
+_standing(event: Event, now: DateTime) : many (user: User, status: Status, lapsed: Flag)
+  Answers every response for event with how it reads at now: lapsed is true for a MAYBE whose decide-by time is not after now, meaning the person never decided and is not counted as coming; the status itself is unchanged. Same order as _responses; no rows when nobody has responded.
+
+_decideBy(event: Event) : optional (decideBy: DateTime, closed: Flag)
+  Answers the event's decide-by time and whether it is closed, and no row when responses were never opened.
 
 _eventsOf(user: User) : many (event: Event, status: Status)
   Answers every event the user has responded to, most recently responded first, and no rows for a user who never responded.

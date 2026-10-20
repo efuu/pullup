@@ -16,3 +16,11 @@ uses on load to decide whether to show the name prompt.
 ```endpoints
 Identity.Claiming.Current at /me/current
 ```
+
+A user can [change their displayed name](reaction:Identity.Claiming.Rename) without
+changing who they are: the secret, and therefore every response and record, stays the
+same.
+
+```endpoints
+Identity.Claiming.Rename at /me/rename
+```

@@ -1,7 +1,7 @@
 {
   "private": true,
   "type": "module",
-  "packageManager": "bun@1.3.4",
+  "packageManager": "bun@1.4.2",
   "dependencies": {
     "@mit-sdg/sync-engine": "1.1.0",
     "@mit-sdg/sync-engine-http": "1.1.0",
@@ -12,12 +12,14 @@
     "@types/bun": "^1.4.3",
     "@types/node": "^24.0.0",
     "@vitejs/plugin-vue": "^6.0.10",
+    "mongodb-memory-server": "^11.3.0",
     "typescript": ">=6 <7",
-    "vite": "^8.3.4"
+    "vite": "^8.3.4",
+    "vue-tsc": "^3.3.13"
   },
   "scripts": {
     "generate": "sync-engine artifacts pin",
-    "check": "sync-engine check && sync-engine artifacts check && tsc --noEmit",
+    "check": "sync-engine check && sync-engine artifacts check && tsc --noEmit && bun run typecheck:web",
     "check:design": "sync-engine check-design design/concepts/*.md design/types.md design/compositions/*.md",
     "test": "bun test tests",
     "start": "bun src/main.ts",
@@ -29,7 +31,11 @@
     "db:down": "podman compose down",
     "db:shell": "podman compose exec mongo mongosh -u dev -p dev",
     "db:logs": "podman compose logs mongo",
-    "db:reset": "podman compose down -v"
+    "db:reset": "podman compose down -v",
+    "build": "vite build",
+    "preview": "bun run db:up && bun run build && NODE_ENV=production PORT=3000 bun run start",
+    "test:save": "bun test tests --reporter=junit --reporter-outfile=tests/last-run.xml 2>&1 | tee tests/last-run.txt",
+    "typecheck:web": "vue-tsc --noEmit -p web/tsconfig.json"
   },
   "name": "pullup",
   "overrides": {

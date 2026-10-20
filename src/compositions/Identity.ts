@@ -6,7 +6,7 @@
 import { endpoint, receive, respond } from "@mit-sdg/sync-engine/boundary";
 import { where } from "@mit-sdg/sync-engine/language";
 import { concepts } from "../concepts.ts";
-import { nameInput, secretOnlyInput } from "./validators.ts";
+import { nameInput, renameInput, secretOnlyInput } from "./validators.ts";
 
 const { Identifying } = concepts;
 
@@ -32,6 +32,16 @@ const Current = endpoint(
   { input: { required: ["secret"] }, validators: { input: secretOnlyInput } },
 );
 
+const Rename = endpoint(
+  "/me/rename",
+  ({ secret, user, name }) =>
+    receive({ secret, name })
+      .then(Identifying.identify({ secret }).responds({ user }))
+      .then(Identifying.rename({ user, name }).responds({}))
+      .then(respond({ user, name })),
+  { input: { required: ["secret", "name"] }, validators: { input: renameInput } },
+);
+
 export const composition = {
-  Claiming: { Claim, Current },
+  Claiming: { Claim, Current, Rename },
 };

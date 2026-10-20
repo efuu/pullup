@@ -63,11 +63,11 @@ export class PlanningConcept {
     return { plan };
   }
 
-  async #owned(plan: string, organizer: string): Promise<PlanDoc> {
+  async #owned(plan: string, organizer: string, verb: string): Promise<PlanDoc> {
     const found = await this.plans.findOne({ _id: plan });
     if (found === null) throw new UnknownPlan("There is no such plan.");
     if (found.organizer !== organizer) {
-      throw new NotOrganizer("Only the organizer can change the plan.");
+      throw new NotOrganizer(`Only the organizer can ${verb} the plan.`);
     }
     return found;
   }
@@ -81,14 +81,14 @@ export class PlanningConcept {
     plan: string;
     startTime: string;
   }) {
-    const found = await this.#owned(plan, organizer);
+    const found = await this.#owned(plan, organizer, "change");
     if (found.cancelled) throw new PlanCancelled("This plan was cancelled.");
     await this.plans.updateOne({ _id: plan }, { $set: { startTime: instant(startTime) } });
     return {};
   }
 
   async cancel({ organizer, plan }: { organizer: string; plan: string }) {
-    const found = await this.#owned(plan, organizer);
+    const found = await this.#owned(plan, organizer, "cancel");
     if (found.cancelled) throw new PlanCancelled("This plan was already cancelled.");
     await this.plans.updateOne({ _id: plan }, { $set: { cancelled: true } });
     return {};

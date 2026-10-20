@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Keep a factual record of whether each person arrived on time, so a group's expectations come from history instead of assumption.
+Prevent a group's sense of who shows up on time from resting on assumption and unspoken resentment, by keeping the record that would otherwise live in nobody's memory.
 
 ## Principle
 

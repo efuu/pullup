@@ -33,6 +33,17 @@ export type PullUpWire = {
     };
     error: { error: AppWideError | "INVALID_INPUT" | "UNKNOWN_SECRET" };
   };
+  "/me/rename": {
+    input: {
+      "name": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["rename"]>[0], ["name"]>>;
+      "secret": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["identify"]>[0], ["secret"]>>;
+    };
+    output: {
+      "name": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["rename"]>[0], ["name"]>>;
+      "user": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["rename"]>[0], ["user"]>>;
+    };
+    error: { error: AppWideError | "INVALID_INPUT" | "INVALID_NAME" | "UNKNOWN_SECRET" | "UNKNOWN_USER" };
+  };
   "/plans/arrive": {
     input: {
       "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["arrive"]>[0], ["event"]>>;
@@ -52,7 +63,7 @@ export type PullUpWire = {
     output: {
       "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Planning"]["cancel"]>[0], ["plan"]>>;
     };
-    error: { error: AppWideError | "INVALID_INPUT" | "NOT_ORGANIZER" | "PLAN_CANCELLED" | "UNKNOWN_PLAN" | "UNKNOWN_SECRET" };
+    error: { error: AppWideError | "INVALID_INPUT" | "NOT_OPEN" | "NOT_ORGANIZER" | "PLAN_CANCELLED" | "UNKNOWN_PLAN" | "UNKNOWN_SECRET" };
   };
   "/plans/create": {
     input: {
@@ -66,6 +77,18 @@ export type PullUpWire = {
       "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["RSVPing"]["open"]>[0], ["event"]>>;
     };
     error: { error: AppWideError | "ALREADY_OPEN" | "INVALID_DETAILS" | "INVALID_INPUT" | "MAYBE_CLOSED" | "NOT_OPEN" | "START_IN_PAST" | "UNKNOWN_SECRET" };
+  };
+  "/plans/eta": {
+    input: {
+      "etaMinutes": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["updateEta"]>[0], ["etaMinutes"]>>;
+      "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["updateEta"]>[0], ["event"]>>;
+      "secret": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["identify"]>[0], ["secret"]>>;
+    };
+    output: {
+      "etaMinutes": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["updateEta"]>[0], ["etaMinutes"]>>;
+      "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["updateEta"]>[0], ["event"]>>;
+    };
+    error: { error: AppWideError | "INVALID_ETA" | "INVALID_INPUT" | "NOT_ON_THE_WAY" | "UNKNOWN_SECRET" };
   };
   "/plans/leave": {
     input: {
@@ -98,6 +121,18 @@ export type PullUpWire = {
     };
     error: { error: AppWideError | "INVALID_INPUT" | "UNKNOWN_SECRET" };
   };
+  "/plans/reschedule": {
+    input: {
+      "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Planning"]["reschedule"]>[0], ["plan"]>>;
+      "secret": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["identify"]>[0], ["secret"]>>;
+      "startTime": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Planning"]["reschedule"]>[0], ["startTime"]>>;
+    };
+    output: {
+      "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Planning"]["reschedule"]>[0], ["plan"]>>;
+      "startTime": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Planning"]["reschedule"]>[0], ["startTime"]>>;
+    };
+    error: { error: AppWideError | "INVALID_INPUT" | "NOT_ORGANIZER" | "PLAN_CANCELLED" | "UNKNOWN_PLAN" | "UNKNOWN_SECRET" };
+  };
   "/plans/respond": {
     input: {
       "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["RSVPing"]["respond"]>[0], ["event"]>>;
@@ -112,7 +147,7 @@ export type PullUpWire = {
   };
   "/plans/view": {
     input: {
-      "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["RSVPing"]["expireMaybes"]>[0], ["event"]>>;
+      "plan": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["_arrived"]>[0], ["event"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["_onTheWay"]>[0], ["event"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Planning"]["_details"]>[0], ["plan"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_decideBy"]>[0], ["event"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_standing"]>[0], ["event"]>]>>;
       "secret": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["identify"]>[0], ["secret"]>>;
     };
     output: {
@@ -124,6 +159,7 @@ export type PullUpWire = {
           "user": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["_name"]>[0], ["user"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["_arrived"]>>>, ["user"]>]>>;
         }[];
         "cancelled": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Planning"]["_details"]>>>, ["cancelled"]>>;
+        "closed": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_decideBy"]>>>, ["closed"]>>;
         "decideBy": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_decideBy"]>>>, ["decideBy"]>>;
         "onTheWay": {
           "etaMinutes": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["_onTheWay"]>>>, ["etaMinutes"]>>;
@@ -134,20 +170,21 @@ export type PullUpWire = {
         "organizer": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["_name"]>[0], ["user"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Planning"]["_details"]>>>, ["organizer"]>]>>;
         "organizerName": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Identifying"]["_name"]>>>, ["name"]>>;
         "place": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Planning"]["_details"]>>>, ["place"]>>;
-        "plan": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["RSVPing"]["expireMaybes"]>[0], ["event"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Planning"]["_details"]>[0], ["plan"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_decideBy"]>[0], ["event"]>]>>;
+        "plan": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Planning"]["_details"]>[0], ["plan"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_decideBy"]>[0], ["event"]>]>>;
         "responses": {
+          "lapsed": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_standing"]>>>, ["lapsed"]>>;
           "name": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Identifying"]["_name"]>>>, ["name"]>>;
           "onTime": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["PunctualityTracking"]["_summary"]>>>, ["onTime"]>>;
-          "status": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_responses"]>>>, ["status"]>>;
+          "status": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_standing"]>>>, ["status"]>>;
           "total": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["PunctualityTracking"]["_summary"]>>>, ["total"]>>;
-          "user": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["_name"]>[0], ["user"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["PunctualityTracking"]["_summary"]>[0], ["user"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_responses"]>>>, ["user"]>]>>;
+          "user": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["_name"]>[0], ["user"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["PunctualityTracking"]["_summary"]>[0], ["user"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_standing"]>>>, ["user"]>]>>;
         }[];
         "startTime": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Planning"]["_details"]>>>, ["startTime"]>>;
         "title": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Planning"]["_details"]>>>, ["title"]>>;
       };
       "viewer": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Identifying"]["identify"]>>, ["user"]>>;
     };
-    error: { error: AppWideError | "INVALID_INPUT" | "NOT_OPEN" | "UNKNOWN_SECRET" };
+    error: { error: AppWideError | "INVALID_INPUT" | "UNKNOWN_SECRET" };
   };
   "/records/view": {
     input: {
@@ -195,6 +232,17 @@ export type PullUpWireHttp = {
     };
     error: { error: HttpAppWideError | "INVALID_REQUEST" | "UNAUTHORIZED" };
   };
+  "/me/rename": {
+    input: {
+      "name": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["rename"]>[0], ["name"]>>;
+      "secret": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["identify"]>[0], ["secret"]>>;
+    };
+    output: {
+      "name": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["rename"]>[0], ["name"]>>;
+      "user": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["rename"]>[0], ["user"]>>;
+    };
+    error: { error: HttpAppWideError | "INVALID_REQUEST" | "NOT_FOUND" | "UNAUTHORIZED" };
+  };
   "/plans/arrive": {
     input: {
       "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["arrive"]>[0], ["event"]>>;
@@ -229,6 +277,18 @@ export type PullUpWireHttp = {
     };
     error: { error: HttpAppWideError | "CONFLICT" | "INVALID_REQUEST" | "NOT_FOUND" | "UNAUTHORIZED" };
   };
+  "/plans/eta": {
+    input: {
+      "etaMinutes": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["updateEta"]>[0], ["etaMinutes"]>>;
+      "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["updateEta"]>[0], ["event"]>>;
+      "secret": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["identify"]>[0], ["secret"]>>;
+    };
+    output: {
+      "etaMinutes": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["updateEta"]>[0], ["etaMinutes"]>>;
+      "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["updateEta"]>[0], ["event"]>>;
+    };
+    error: { error: HttpAppWideError | "CONFLICT" | "INVALID_REQUEST" | "UNAUTHORIZED" };
+  };
   "/plans/leave": {
     input: {
       "etaMinutes": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["leave"]>[0], ["etaMinutes"]>>;
@@ -260,6 +320,18 @@ export type PullUpWireHttp = {
     };
     error: { error: HttpAppWideError | "INVALID_REQUEST" | "UNAUTHORIZED" };
   };
+  "/plans/reschedule": {
+    input: {
+      "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Planning"]["reschedule"]>[0], ["plan"]>>;
+      "secret": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["identify"]>[0], ["secret"]>>;
+      "startTime": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Planning"]["reschedule"]>[0], ["startTime"]>>;
+    };
+    output: {
+      "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Planning"]["reschedule"]>[0], ["plan"]>>;
+      "startTime": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Planning"]["reschedule"]>[0], ["startTime"]>>;
+    };
+    error: { error: HttpAppWideError | "CONFLICT" | "FORBIDDEN" | "INVALID_REQUEST" | "NOT_FOUND" | "UNAUTHORIZED" };
+  };
   "/plans/respond": {
     input: {
       "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["RSVPing"]["respond"]>[0], ["event"]>>;
@@ -274,7 +346,7 @@ export type PullUpWireHttp = {
   };
   "/plans/view": {
     input: {
-      "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["RSVPing"]["expireMaybes"]>[0], ["event"]>>;
+      "plan": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["_arrived"]>[0], ["event"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["_onTheWay"]>[0], ["event"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Planning"]["_details"]>[0], ["plan"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_decideBy"]>[0], ["event"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_standing"]>[0], ["event"]>]>>;
       "secret": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["identify"]>[0], ["secret"]>>;
     };
     output: {
@@ -286,6 +358,7 @@ export type PullUpWireHttp = {
           "user": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["_name"]>[0], ["user"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["_arrived"]>>>, ["user"]>]>>;
         }[];
         "cancelled": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Planning"]["_details"]>>>, ["cancelled"]>>;
+        "closed": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_decideBy"]>>>, ["closed"]>>;
         "decideBy": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_decideBy"]>>>, ["decideBy"]>>;
         "onTheWay": {
           "etaMinutes": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["_onTheWay"]>>>, ["etaMinutes"]>>;
@@ -296,20 +369,21 @@ export type PullUpWireHttp = {
         "organizer": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["_name"]>[0], ["user"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Planning"]["_details"]>>>, ["organizer"]>]>>;
         "organizerName": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Identifying"]["_name"]>>>, ["name"]>>;
         "place": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Planning"]["_details"]>>>, ["place"]>>;
-        "plan": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["RSVPing"]["expireMaybes"]>[0], ["event"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Planning"]["_details"]>[0], ["plan"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_decideBy"]>[0], ["event"]>]>>;
+        "plan": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Planning"]["_details"]>[0], ["plan"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_decideBy"]>[0], ["event"]>]>>;
         "responses": {
+          "lapsed": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_standing"]>>>, ["lapsed"]>>;
           "name": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Identifying"]["_name"]>>>, ["name"]>>;
           "onTime": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["PunctualityTracking"]["_summary"]>>>, ["onTime"]>>;
-          "status": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_responses"]>>>, ["status"]>>;
+          "status": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_standing"]>>>, ["status"]>>;
           "total": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["PunctualityTracking"]["_summary"]>>>, ["total"]>>;
-          "user": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["_name"]>[0], ["user"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["PunctualityTracking"]["_summary"]>[0], ["user"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_responses"]>>>, ["user"]>]>>;
+          "user": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["_name"]>[0], ["user"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["PunctualityTracking"]["_summary"]>[0], ["user"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_standing"]>>>, ["user"]>]>>;
         }[];
         "startTime": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Planning"]["_details"]>>>, ["startTime"]>>;
         "title": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Planning"]["_details"]>>>, ["title"]>>;
       };
       "viewer": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Identifying"]["identify"]>>, ["user"]>>;
     };
-    error: { error: HttpAppWideError | "INVALID_REQUEST" | "NOT_FOUND" | "UNAUTHORIZED" };
+    error: { error: HttpAppWideError | "INVALID_REQUEST" | "UNAUTHORIZED" };
   };
   "/records/view": {
     input: {

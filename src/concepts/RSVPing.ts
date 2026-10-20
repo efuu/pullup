@@ -10,6 +10,7 @@ export type Status = "GOING" | "MAYBE" | "NO";
 interface EventDoc {
   _id: string;
   decideBy: string;
+  closed: boolean;
 }
 
 interface ResponseDoc {
@@ -33,7 +34,7 @@ export class RSVPingConcept {
   async open({ event, decideBy }: { event: string; decideBy: string }) {
     const existing = await this.events.findOne({ _id: event });
     if (existing !== null) throw new AlreadyOpen("Responses are already open for this event.");
-    await this.events.insertOne({ _id: event, decideBy: instant(decideBy) });
+    await this.events.insertOne({ _id: event, decideBy: instant(decideBy), closed: false });
     return {};
   }
 
@@ -41,6 +42,12 @@ export class RSVPingConcept {
     const found = await this.events.findOne({ _id: event });
     if (found === null) throw new NotOpen("This event is not taking responses.");
     return found;
+  }
+
+  async close({ event }: { event: string }) {
+    await this.#opened(event);
+    await this.events.updateOne({ _id: event }, { $set: { closed: true } });
+    return {};
   }
 
   async respond({
@@ -55,6 +62,7 @@ export class RSVPingConcept {
     now: string | Date;
   }) {
     const found = await this.#opened(event);
+    if (found.closed) throw new NotOpen("This event is not taking responses.");
     const current = instant(now);
     if (status === "MAYBE" && !isAfter(found.decideBy, current)) {
       throw new MaybeClosed("It's past the decide-by time, so pick going or can't.");
@@ -70,24 +78,29 @@ export class RSVPingConcept {
     return {};
   }
 
-  async expireMaybes({ event, now }: { event: string; now: string | Date }) {
-    const found = await this.#opened(event);
-    if (isAfter(found.decideBy, instant(now))) return { expired: 0 };
-    const result = await this.responses.updateMany(
-      { event, status: "MAYBE" },
-      { $set: { status: "NO", updatedAt: instant(now) } },
-    );
-    return { expired: result.modifiedCount };
-  }
-
   async _responses({ event }: { event: string }): Promise<Array<{ user: string; status: Status }>> {
     const rows = await this.responses.find({ event }).sort({ firstAt: 1 }).toArray();
     return rows.map(({ user, status }) => ({ user, status }));
   }
 
-  async _decideBy({ event }: { event: string }): Promise<Array<{ decideBy: string }>> {
+  async _standing({
+    event,
+    now,
+  }: {
+    event: string;
+    now: string | Date;
+  }): Promise<Array<{ user: string; status: Status; lapsed: boolean }>> {
     const found = await this.events.findOne({ _id: event });
-    return found === null ? [] : [{ decideBy: found.decideBy }];
+    if (found === null) return [];
+    const deadlinePassed = !isAfter(found.decideBy, instant(now));
+    const rows = await this.responses.find({ event }).sort({ firstAt: 1 }).toArray();
+    // The answer is never rewritten; only its reading depends on the time.
+    return rows.map(({ user, status }) => ({ user, status, lapsed: status === "MAYBE" && deadlinePassed }));
+  }
+
+  async _decideBy({ event }: { event: string }): Promise<Array<{ decideBy: string; closed: boolean }>> {
+    const found = await this.events.findOne({ _id: event });
+    return found === null ? [] : [{ decideBy: found.decideBy, closed: found.closed }];
   }
 
   async _sharedEvents({ user, other }: { user: string; other: string }): Promise<Array<{ event: string }>> {

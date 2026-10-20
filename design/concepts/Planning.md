@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Let one person propose a specific outing (what, where, when) that everyone else can refer to.
+Prevent a plan from existing only as a message in a chat thread, where its time and place get buried, changed in a reply nobody saw, or quietly assumed dead.
 
 ## Principle
 

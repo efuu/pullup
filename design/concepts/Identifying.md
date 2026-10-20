@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Tell returning visitors apart without accounts, so that a name on a plan refers to the same person the next time.
+Prevent one person's responses and record from scattering across unrelated names, and prevent the opposite failure, friends refusing to use the thing because it asked them to create an account first.
 
 ## Principle
 

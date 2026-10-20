@@ -73,3 +73,7 @@ reaction viewRecord
 ## Changes made while implementing (P2)
 
 The specs in [`concepts/`](concepts/) are current; the reactions above are the P1 sketch. What changed and why is in [implementation-notes.md](implementation-notes.md). In short: time-dependent actions take a `now` input, maybes expire when the page is viewed rather than on a timer, the on-time record takes the two instants and computes lateness itself, the organizer-is-going reaction fires on `RSVPing.open`, and the shared-plan rule is a query (`_sharedEvents`) wrapped by the view. The exact reactions, endpoints, views and formers are documented in [`compositions/`](compositions/).
+
+For the beta (P3), RSVPing gained a `close` action and a `closed` flag, and a reaction closes a plan's responses when Planning cancels it; see the P3 section of the implementation notes.
+
+After staff feedback (beta): maybes are no longer turned into no at the decide-by time. `expireMaybes` is gone; a `_standing(event, now)` query reads a maybe past its deadline as lapsed (not counted as coming) while keeping the answer. All five purposes were rewritten as the bad situation each concept prevents.

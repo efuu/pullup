@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Show, truthfully and live, who has left for an event and who has arrived.
+Prevent people from standing outside not knowing whether anyone else has actually left, and prevent "omw" from meaning nothing, by recording departures and arrivals as the moments they were claimed.
 
 ## Principle
 

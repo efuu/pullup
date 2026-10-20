@@ -9,6 +9,7 @@ import { concepts } from "../concepts.ts";
 import {
   createPlanInput,
   leaveInput,
+  rescheduleInput,
   respondInput,
   secretOnlyInput,
   secretPlanInput,
@@ -47,9 +48,9 @@ const OrganizerIsGoing = reaction(({ event, organizer, instant }) =>
 // ----------------------------------------------------------------- Viewing
 
 const PlanPage = former(
-  "the plan page (plan)",
+  "the plan page (plan) as read at (now)",
   (
-    { plan },
+    { plan, now: at },
     {
       organizer,
       organizerName,
@@ -58,9 +59,11 @@ const PlanPage = former(
       startTime,
       cancelled,
       decideBy,
+      closed,
       rUser,
       rName,
       rStatus,
+      rLapsed,
       rOnTime,
       rTotal,
       wUser,
@@ -76,7 +79,7 @@ const PlanPage = former(
     where(
       Planning._details({ plan }).is({ organizer, title, place, startTime, cancelled }),
       Identifying._name({ user: organizer }).is({ name: organizerName }),
-      RSVPing._decideBy({ event: plan }).is({ decideBy }),
+      RSVPing._decideBy({ event: plan }).is({ decideBy, closed }),
     ).form({
       plan,
       organizer,
@@ -86,7 +89,10 @@ const PlanPage = former(
       startTime,
       cancelled,
       decideBy,
-      responses: each(RSVPing._responses({ event: plan }).is({ user: rUser, status: rStatus }))
+      closed,
+      responses: each(
+        RSVPing._standing({ event: plan, now: at }).is({ user: rUser, status: rStatus, lapsed: rLapsed }),
+      )
         .where(
           Identifying._name({ user: rUser }).is({ name: rName }),
           PunctualityTracking._summary({ user: rUser, limit: 5 }).is({
@@ -94,7 +100,7 @@ const PlanPage = former(
             total: rTotal,
           }),
         )
-        .form({ user: rUser, name: rName, status: rStatus, onTime: rOnTime, total: rTotal }),
+        .form({ user: rUser, name: rName, status: rStatus, lapsed: rLapsed, onTime: rOnTime, total: rTotal }),
       onTheWay: each(
         ArrivalTracking._onTheWay({ event: plan }).is({ user: wUser, leftAt: wLeftAt, etaMinutes: wEta }),
       )
@@ -113,9 +119,9 @@ const PlanPage = former(
 );
 
 /**
- * Viewing settles the decide-by deadline first: any maybe past its time
- * becomes a no before the page is formed. This is how expiry happens without a
- * scheduler.
+ * The page is read "as of now": a maybe past its decide-by time is shown as
+ * lapsed (said maybe, never decided, not counted as coming) without anyone's
+ * answer being rewritten. Nothing is mutated by viewing.
  */
 const ViewPlan = endpoint(
   "/plans/view",
@@ -123,8 +129,7 @@ const ViewPlan = endpoint(
     receive({ secret, plan })
       .where(now(instant))
       .then(Identifying.identify({ secret }).responds({ user }))
-      .then(RSVPing.expireMaybes({ event: plan, now: instant }).responds({}))
-      .then(respond({ viewer: user, page: PlanPage({ plan }) })),
+      .then(respond({ viewer: user, page: PlanPage({ plan, now: instant }) })),
   { input: { required: ["secret", "plan"] }, validators: { input: secretPlanInput } },
 );
 
@@ -163,6 +168,21 @@ const Respond = endpoint(
 );
 
 /** Planning refuses anyone but the organizer; the endpoint only says who asked. */
+const ReschedulePlan = endpoint(
+  "/plans/reschedule",
+  ({ secret, user, plan, startTime }) =>
+    receive({ secret, plan, startTime })
+      .then(Identifying.identify({ secret }).responds({ user }))
+      .then(Planning.reschedule({ organizer: user, plan, startTime }).responds({}))
+      .then(respond({ plan, startTime })),
+  { input: { required: ["secret", "plan", "startTime"] }, validators: { input: rescheduleInput } },
+);
+
+/** A cancelled plan stops taking responses; the responses already given stay readable. */
+const CancelClosesResponses = reaction(({ plan }) =>
+  when(Planning.cancel({ plan }).responds({})).then(RSVPing.close({ event: plan })),
+);
+
 const CancelPlan = endpoint(
   "/plans/cancel",
   ({ secret, user, plan }) =>
@@ -183,6 +203,16 @@ const Leave = endpoint(
       .then(Identifying.identify({ secret }).responds({ user }))
       .then(ArrivalTracking.leave({ user, event: plan, etaMinutes, now: instant }).responds({}))
       .then(respond({ plan })),
+  { input: { required: ["secret", "plan", "etaMinutes"] }, validators: { input: leaveInput } },
+);
+
+const UpdateEta = endpoint(
+  "/plans/eta",
+  ({ secret, user, plan, etaMinutes }) =>
+    receive({ secret, plan, etaMinutes })
+      .then(Identifying.identify({ secret }).responds({ user }))
+      .then(ArrivalTracking.updateEta({ user, event: plan, etaMinutes }).responds({}))
+      .then(respond({ plan, etaMinutes })),
   { input: { required: ["secret", "plan", "etaMinutes"] }, validators: { input: leaveInput } },
 );
 
@@ -212,6 +242,6 @@ export const composition = {
   Creating: { CreatePlan, OrganizerIsGoing },
   Viewing: { ViewPlan, PlanPage, MyPlans, PlanList },
   Responding: { Respond },
-  Managing: { CancelPlan },
-  Arriving: { Leave, Arrive, RecordArrival },
+  Managing: { ReschedulePlan, CancelPlan, CancelClosesResponses },
+  Arriving: { Leave, UpdateEta, Arrive, RecordArrival },
 };
