@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="bun test" tests="24" assertions="114" failures="0" skipped="0" time="3.559841">
+  <testsuite name="tests/journey.test.ts" file="tests/journey.test.ts" tests="7" assertions="44" failures="0" skipped="0" time="3.354205" hostname="Mac">
+    <testsuite name="the beta journey over HTTP" file="tests/journey.test.ts" line="53" tests="7" assertions="44" failures="0" skipped="0" time="3.197" hostname="Mac">
+      <testcase name="people claim names; a bad secret is unauthorized; a blank name is invalid" classname="the beta journey over HTTP" time="0.053616" file="tests/journey.test.ts" line="59" assertions="5" />
+      <testcase name="creating a plan opens responses and counts the organizer as going" classname="the beta journey over HTTP" time="0.037246" file="tests/journey.test.ts" line="70" assertions="5" />
+      <testcase name="others respond; a maybe lapses at decide-by but is kept; a new maybe is refused" classname="the beta journey over HTTP" time="2.277179" file="tests/journey.test.ts" line="85" assertions="8" />
+      <testcase name="only the organizer can reschedule or cancel" classname="the beta journey over HTTP" time="0.035436" file="tests/journey.test.ts" line="103" assertions="4" />
+      <testcase name="pulling up, correcting the estimate, pulled up; arriving writes the record" classname="the beta journey over HTTP" time="0.410774" file="tests/journey.test.ts" line="111" assertions="12" />
+      <testcase name="records are visible only to people who shared a plan" classname="the beta journey over HTTP" time="0.019386" file="tests/journey.test.ts" line="130" assertions="3" />
+      <testcase name="renaming keeps identity; cancelling closes responses" classname="the beta journey over HTTP" time="0.366219" file="tests/journey.test.ts" line="137" assertions="7" />
+    </testsuite>
+  </testsuite>
+  <testsuite name="tests/concepts/ArrivalTracking.test.ts" file="tests/concepts/ArrivalTracking.test.ts" tests="3" assertions="14" failures="0" skipped="0" time="0.106828" hostname="Mac">
+    <testsuite name="ArrivalTracking" file="tests/concepts/ArrivalTracking.test.ts" line="21" tests="3" assertions="14" failures="0" skipped="0" time="0.036" hostname="Mac">
+      <testcase name="its principle: not left, then on the way, then here" classname="ArrivalTracking" time="0.029557" file="tests/concepts/ArrivalTracking.test.ts" line="22" assertions="6" />
+      <testcase name="arriving without ever leaving is allowed; arriving twice is not" classname="ArrivalTracking" time="0.004843" file="tests/concepts/ArrivalTracking.test.ts" line="39" assertions="3" />
+      <testcase name="refuses bad estimates and ETA updates for people not on the way" classname="ArrivalTracking" time="0.003803" file="tests/concepts/ArrivalTracking.test.ts" line="50" assertions="5" />
+    </testsuite>
+  </testsuite>
+  <testsuite name="tests/concepts/RSVPing.test.ts" file="tests/concepts/RSVPing.test.ts" tests="4" assertions="20" failures="0" skipped="0" time="0.046308" hostname="Mac">
+    <testsuite name="RSVPing" file="tests/concepts/RSVPing.test.ts" line="17" tests="4" assertions="20" failures="0" skipped="0" time="0.036" hostname="Mac">
+      <testcase name="its principle: respond, change your mind, and maybes expire at decide-by" classname="RSVPing" time="0.02798" file="tests/concepts/RSVPing.test.ts" line="18" assertions="8" />
+      <testcase name="shared events: both going, in either order, and a person shares with themselves" classname="RSVPing" time="0.005403" file="tests/concepts/RSVPing.test.ts" line="54" assertions="4" />
+      <testcase name="closing an event stops responses but keeps the ones given" classname="RSVPing" time="0.003667" file="tests/concepts/RSVPing.test.ts" line="64" assertions="4" />
+      <testcase name="responses need an open event, and an event opens once" classname="RSVPing" time="0.001088" file="tests/concepts/RSVPing.test.ts" line="77" assertions="4" />
+    </testsuite>
+  </testsuite>
+  <testsuite name="tests/concepts/Planning.test.ts" file="tests/concepts/Planning.test.ts" tests="3" assertions="15" failures="0" skipped="0" time="0.018688" hostname="Mac">
+    <testsuite name="Planning" file="tests/concepts/Planning.test.ts" line="24" tests="3" assertions="15" failures="0" skipped="0" time="0.013" hostname="Mac">
+      <testcase name="its principle: create a plan, read its details, only the organizer changes it" classname="Planning" time="0.011602" file="tests/concepts/Planning.test.ts" line="25" assertions="7" />
+      <testcase name="a refused reschedule changes nothing, and a cancelled plan cannot be rescheduled" classname="Planning" time="0.002165" file="tests/concepts/Planning.test.ts" line="43" assertions="4" />
+      <testcase name="refuses blank details, a start in the past, and unknown plans" classname="Planning" time="0.000727" file="tests/concepts/Planning.test.ts" line="58" assertions="4" />
+    </testsuite>
+  </testsuite>
+  <testsuite name="tests/concepts/Identifying.test.ts" file="tests/concepts/Identifying.test.ts" tests="4" assertions="13" failures="0" skipped="0" time="0.01698" hostname="Mac">
+    <testsuite name="Identifying" file="tests/concepts/Identifying.test.ts" line="17" tests="4" assertions="13" failures="0" skipped="0" time="0.011" hostname="Mac">
+      <testcase name="its principle: claim a name once, then the secret identifies the same user" classname="Identifying" time="0.010517" file="tests/concepts/Identifying.test.ts" line="18" assertions="4" />
+      <testcase name="two people with the same name are different users" classname="Identifying" time="0.000638" file="tests/concepts/Identifying.test.ts" line="25" assertions="2" />
+      <testcase name="an unknown secret is refused and an unknown user has no name" classname="Identifying" time="0.000566" file="tests/concepts/Identifying.test.ts" line="30" assertions="2" />
+      <testcase name="blank or long names are refused; rename keeps identity" classname="Identifying" time="0.001233" file="tests/concepts/Identifying.test.ts" line="35" assertions="5" />
+    </testsuite>
+  </testsuite>
+  <testsuite name="tests/concepts/PunctualityTracking.test.ts" file="tests/concepts/PunctualityTracking.test.ts" tests="3" assertions="8" failures="0" skipped="0" time="0.014269" hostname="Mac">
+    <testsuite name="PunctualityTracking" file="tests/concepts/PunctualityTracking.test.ts" line="15" tests="3" assertions="8" failures="0" skipped="0" time="0.009" hostname="Mac">
+      <testcase name="its principle: each arrival becomes minutes late, and the summary counts on-time arrivals" classname="PunctualityTracking" time="0.008647" file="tests/concepts/PunctualityTracking.test.ts" line="16" assertions="5" />
+      <testcase name="the limit bounds the summary to the most recent records" classname="PunctualityTracking" time="0.000385" file="tests/concepts/PunctualityTracking.test.ts" line="31" assertions="1" />
+      <testcase name="an event is recorded once per person, and early is on time, not negative" classname="PunctualityTracking" time="0.001021" file="tests/concepts/PunctualityTracking.test.ts" line="35" assertions="2" />
+    </testsuite>
+  </testsuite>
+</testsuites>

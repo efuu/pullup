@@ -57,5 +57,8 @@ describe("ArrivalTracking", () => {
     await expect(tracking.updateEta({ user: "priya", event: "kbbq", etaMinutes: 5 })).rejects.toBeInstanceOf(
       NotOnTheWay,
     );
+    // none of the refusals above added or changed a status
+    expect(await tracking._onTheWay({ event: "kbbq" })).toEqual([]);
+    expect((await tracking._arrived({ event: "kbbq" })).map((r) => r.user)).toEqual(["sam", "priya"]);
   });
 });
