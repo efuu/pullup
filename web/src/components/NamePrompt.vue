@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { client, explain, rememberSecret } from "../api";
 
+defineProps<{ openingPlan?: boolean }>();
 const emit = defineEmits<{ claimed: [] }>();
 const name = ref("");
 const error = ref("");
@@ -17,7 +18,7 @@ async function claim() {
   const r = await client.me.claim({ name: name.value.trim() });
   busy.value = false;
   if ("error" in r) {
-    error.value = explain(r.error, "Names are at most 40 characters.");
+    error.value = explain(r.error, "Names are 1 to 40 characters.");
     return;
   }
   rememberSecret(r.secret);
@@ -27,14 +28,18 @@ async function claim() {
 
 <template>
   <div class="card">
-    <p>No account needed. What should people see you as?</p>
+    <h2 style="margin-top: 0.25rem">{{ openingPlan ? "Someone sent you a plan" : "Who are you?" }}</h2>
+    <p class="muted">
+      <template v-if="openingPlan">Enter the name your friends know you by and you'll see it. No account.</template>
+      <template v-else>No account. Just the name your friends will see on plans.</template>
+    </p>
     <form @submit.prevent="claim">
       <label>Your name <input v-model="name" maxlength="40" autofocus placeholder="Dylan" /></label>
       <div class="row">
-        <button class="primary" :disabled="busy">That's me</button>
-        <span v-if="error" class="error">{{ error }}</span>
+        <button class="primary" :disabled="busy">{{ openingPlan ? "See the plan" : "That's me" }}</button>
       </div>
+      <p v-if="error" class="feedback error">{{ error }}</p>
     </form>
-    <p class="muted">This browser will remember you. Your name is shown on plans you respond to.</p>
+    <p class="muted small">This browser remembers you. On another device you'd enter a name again.</p>
   </div>
 </template>

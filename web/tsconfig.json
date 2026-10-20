@@ -7,7 +7,19 @@
     "noEmit": true,
     "strict": true,
     "skipLibCheck": true,
-    "lib": ["ESNext", "DOM"]
+    "lib": [
+      "ESNext",
+      "DOM"
+    ],
+    "paths": {
+      "@design/*": [
+        "../design/*"
+      ]
+    }
   },
-  "include": ["src", "../generated"]
+  "include": [
+    "src",
+    "../generated",
+    "../src/text.d.ts"
+  ]
 }

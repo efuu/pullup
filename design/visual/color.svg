@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" font-family="Helvetica, Arial, sans-serif">
+  <rect width="1200" height="760" fill="#fbf7f0"/>
+  <text x="48" y="60" font-size="30" font-weight="700" fill="#1f1b16">Visual study 2 — Color</text>
+  <text x="48" y="88" font-size="15" fill="#6f665a">Colour is used for exactly two things: the state of a person (going / maybe / can't, here / on the way / not left) and feedback. Everything else is ink on paper.</text>
+
+  <!-- palette swatches -->
+  <g font-size="13">
+    <rect x="48" y="118" width="130" height="90" rx="10" fill="#fbf7f0" stroke="#e6dfd3"/><text x="58" y="228" fill="#1f1b16" font-weight="700">paper</text><text x="58" y="246" fill="#6f665a">#FBF7F0 page</text>
+    <rect x="194" y="118" width="130" height="90" rx="10" fill="#ffffff" stroke="#e6dfd3"/><text x="204" y="228" fill="#1f1b16" font-weight="700">surface</text><text x="204" y="246" fill="#6f665a">#FFFFFF cards</text>
+    <rect x="340" y="118" width="130" height="90" rx="10" fill="#1f1b16"/><text x="350" y="228" fill="#1f1b16" font-weight="700">ink</text><text x="350" y="246" fill="#6f665a">#1F1B16 text, 16.0:1</text>
+    <rect x="486" y="118" width="130" height="90" rx="10" fill="#6f665a"/><text x="496" y="228" fill="#1f1b16" font-weight="700">muted</text><text x="496" y="246" fill="#6f665a">#6F665A labels, 5.3:1</text>
+    <rect x="632" y="118" width="130" height="90" rx="10" fill="#bf3f1b"/><text x="642" y="228" fill="#1f1b16" font-weight="700">accent</text><text x="642" y="246" fill="#6f665a">#BF3F1B the one action</text>
+    <rect x="778" y="118" width="130" height="90" rx="10" fill="#2a7148"/><text x="788" y="228" fill="#1f1b16" font-weight="700">going / here</text><text x="788" y="246" fill="#6f665a">#2A7148 success, 5.5:1</text>
+    <rect x="924" y="118" width="130" height="90" rx="10" fill="#c98a14"/><text x="934" y="228" fill="#1f1b16" font-weight="700">maybe</text><text x="934" y="246" fill="#6f665a">#C98A14 dot · #8A5F0B text</text>
+    <rect x="1070" y="118" width="82" height="90" rx="10" fill="#b3261e"/><text x="1070" y="228" fill="#1f1b16" font-weight="700">can't</text><text x="1070" y="246" fill="#6f665a">#B3261E 6.1:1</text>
+  </g>
+
+  <!-- tints row -->
+  <g font-size="13">
+    <rect x="48" y="272" width="200" height="56" rx="10" fill="#e9f4ec"/><text x="60" y="305" fill="#2a7148" font-weight="700">You're going.</text>
+    <rect x="262" y="272" width="200" height="56" rx="10" fill="#fbf1dc"/><text x="274" y="305" fill="#8a5f0b" font-weight="700">on time 2/5</text>
+    <rect x="476" y="272" width="240" height="56" rx="10" fill="#f9e5e3"/><text x="488" y="305" fill="#b3261e" font-weight="700">Past the decide-by time.</text>
+    <rect x="730" y="272" width="200" height="56" rx="10" fill="#fdeee8"/><text x="742" y="305" fill="#bf3f1b" font-weight="700">on the way</text>
+    <text x="944" y="305" fill="#6f665a">tints: the same hue at ~10% for backgrounds of feedback and pills</text>
+  </g>
+
+  <!-- the board as a colour demo -->
+  <rect x="48" y="356" width="520" height="190" rx="12" fill="#fff" stroke="#e6dfd3"/>
+  <text x="72" y="386" font-size="12" fill="#6f665a" letter-spacing="2">WHO'S WHERE</text>
+  <g font-size="17" fill="#1f1b16">
+    <circle cx="84" cy="420" r="6" fill="#2a7148"/><text x="104" y="426" font-weight="600">Dylan</text><text x="420" y="426" text-anchor="end">here · 5:58</text>
+    <circle cx="84" cy="456" r="6" fill="#bf3f1b"/><text x="104" y="462" font-weight="600">Priya</text><text x="420" y="462" text-anchor="end">8 min away</text>
+    <circle cx="84" cy="492" r="6" fill="#fff" stroke="#6f665a"/><text x="104" y="498" font-weight="600">Jordan</text><text x="420" y="498" text-anchor="end" fill="#6f665a">hasn't left yet</text>
+    <text x="72" y="532" font-size="13" fill="#6f665a">a dot per person: green = arrived, orange = moving, hollow = nothing yet. Scan the dots, not the words.</text>
+  </g>
+
+  <!-- annotations -->
+  <g font-size="15" fill="#1f1b16">
+    <text x="600" y="380" font-weight="700" font-size="16">Choices, and why</text>
+    <text x="600" y="410">• <tspan font-weight="700">Warm paper, not white.</tspan> #FBF7F0 behind white cards: the cards read as</text>
+    <text x="600" y="432">  "things" without needing shadows, and the page feels like an invitation, not a form.</text>
+    <text x="600" y="464">• <tspan font-weight="700">One accent, used once per screen.</tspan> Burnt orange is only the primary</text>
+    <text x="600" y="486">  button and the "on the way" state. Nothing else is orange, so the eye lands on the action.</text>
+    <text x="600" y="518">• <tspan font-weight="700">Green / amber / red mean the same thing everywhere:</tspan> going, maybe, can't;</text>
+    <text x="600" y="540">  here, pending, late; success, warning, error. A pill, a dot and a button share a hue.</text>
+    <text x="600" y="572">• <tspan font-weight="700">Contrast measured, not guessed:</tspan> on paper, ink 16.0:1, muted 5.3:1, green 5.5:1, red 6.1:1,</text>
+    <text x="600" y="594">  accent 5.0:1; white on the orange button 5.3:1. Bright amber (2.8:1) is a dot only; amber text is #8A5F0B at 5.3:1.</text>
+    <text x="600" y="626">• <tspan font-weight="700">Decided against</tspan> a dark theme (status colours lose meaning) and a brand gradient</text>
+    <text x="600" y="648">  (decoration without purpose).</text>
+  </g>
+  <text x="48" y="600" font-size="15" fill="#6f665a">Inspiration: a KBBQ restaurant's ticket printer (warm paper, one red stamp); subway line maps (one hue = one meaning, repeated</text>
+  <text x="48" y="622" font-size="15" fill="#6f665a">everywhere); traffic lights (three colours everyone already reads without a legend); a hand-stamped party invitation.</text>
+  <text x="48" y="700" font-size="13" fill="#6f665a">Palette built in Coolors from the paper + orange pair, then the three status hues adjusted for AA contrast against #FBF7F0.</text>
+</svg>

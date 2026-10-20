@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" font-family="Helvetica, Arial, sans-serif">
+  <rect width="1200" height="760" fill="#fbf7f0"/>
+  <text x="48" y="60" font-size="30" font-weight="700" fill="#1f1b16">Visual study 1 — Typography</text>
+  <text x="48" y="88" font-size="15" fill="#6f665a">What a plan page has to do with type: a name you scan in a second, a time you trust, a button you can't misread.</text>
+
+  <!-- specimen: heading sans -->
+  <rect x="48" y="120" width="560" height="270" rx="12" fill="#fff" stroke="#e6dfd3"/>
+  <text x="72" y="152" font-size="12" fill="#6f665a" letter-spacing="2">HEADINGS, LABELS, BUTTONS, NUMBERS</text>
+  <text x="72" y="215" font-size="44" font-weight="700" fill="#1f1b16" font-family="'Space Grotesk', 'Helvetica Neue', Arial, sans-serif">KBBQ at Koreana</text>
+  <text x="72" y="255" font-size="20" font-weight="700" fill="#2a7148" font-family="'Space Grotesk', Arial, sans-serif">4 going</text>
+  <text x="200" y="255" font-size="20" font-weight="700" fill="#8a5f0b" font-family="'Space Grotesk', Arial, sans-serif">1 maybe</text>
+  <text x="330" y="255" font-size="20" font-weight="700" fill="#b3261e" font-family="'Space Grotesk', Arial, sans-serif">1 can't</text>
+  <rect x="72" y="285" width="150" height="44" rx="10" fill="#bf3f1b"/>
+  <text x="147" y="313" font-size="17" font-weight="700" fill="#fff" text-anchor="middle" font-family="'Space Grotesk', Arial, sans-serif">Pulling up</text>
+  <rect x="236" y="285" width="130" height="44" rx="10" fill="#fff" stroke="#e6dfd3"/>
+  <text x="301" y="313" font-size="17" font-weight="500" fill="#1f1b16" text-anchor="middle" font-family="'Space Grotesk', Arial, sans-serif">Pulled up</text>
+  <text x="72" y="368" font-size="13" fill="#6f665a" font-family="'Space Grotesk', Arial, sans-serif">Space Grotesk · 500 / 700 · Google Fonts</text>
+
+  <!-- specimen: body serif -->
+  <rect x="632" y="120" width="520" height="270" rx="12" fill="#fff" stroke="#e6dfd3"/>
+  <text x="656" y="152" font-size="12" fill="#6f665a" letter-spacing="2">BODY, NAMES, EXPLANATIONS</text>
+  <text x="656" y="200" font-size="19" fill="#1f1b16" font-family="'Source Serif 4', Georgia, serif">Priya is on the way since 5:50, about 8 min.</text>
+  <text x="656" y="232" font-size="19" fill="#1f1b16" font-family="'Source Serif 4', Georgia, serif">Jordan hasn't left yet.</text>
+  <text x="656" y="276" font-size="16" fill="#6f665a" font-family="'Source Serif 4', Georgia, serif" font-style="italic">Maybes turn into can't at 2:00 PM (in 3 h).</text>
+  <text x="656" y="318" font-size="16" fill="#6f665a" font-family="'Source Serif 4', Georgia, serif">Only people who've shared a plan with Priya can see this. No fines, no scores, just the record.</text>
+  <text x="656" y="368" font-size="13" fill="#6f665a" font-family="'Space Grotesk', Arial, sans-serif">Source Serif 4 · 400 / 600 / italic · optical size 8–60 · Google Fonts</text>
+
+  <!-- annotations -->
+  <text x="48" y="440" font-size="16" font-weight="700" fill="#1f1b16">Choices, and why</text>
+  <g font-size="15" fill="#1f1b16">
+    <text x="48" y="472">• <tspan font-weight="700">A sans for everything you act on, a serif for everything you read.</tspan> Buttons, counts, labels and times are Space Grotesk;</text>
+    <text x="48" y="494">  sentences and names are Source Serif 4. The split itself carries meaning: if it's sans, you can tap it or it's a number.</text>
+    <text x="48" y="526">• <tspan font-weight="700">Space Grotesk</tspan> has a tall x-height and wide, open counters, so "6:01" and "8 min" stay legible at 14 px on a phone held at arm's length,</text>
+    <text x="48" y="548">  and its slightly odd letterforms (the g, the a) give the app a character that isn't "default system app".</text>
+    <text x="48" y="580">• <tspan font-weight="700">Source Serif 4</tspan> at 17 px for body: a serif reads as calmer and more personal than a sans at paragraph length, which fits an app about friends,</text>
+    <text x="48" y="602">  and its optical sizes keep the small 14 px explanations crisp instead of spindly.</text>
+    <text x="48" y="634">• <tspan font-weight="700">Only three sizes matter</tspan>: plan title (1.35 rem, 700), body (1 rem), and small print (0.85–0.9 rem). Section headings are small uppercase</text>
+    <text x="48" y="656">  tracked labels in the muted colour, so they organize without competing with the names, which are the real content.</text>
+    <text x="48" y="688">• <tspan font-weight="700">Weight does the emphasis, not size.</tspan> Names are 600, counts are 700, everything else is 400. Nothing is bold "for decoration".</text>
+    <text x="48" y="726" fill="#6f665a">Inspiration: transit departure boards (one sans, big numbers, nothing decorative); restaurant receipts (tracked uppercase section labels on warm paper);</text>
+    <text x="48" y="746" fill="#6f665a">printed invitations (serif body with a single bold sans line for the thing that matters).</text>
+  </g>
+</svg>
