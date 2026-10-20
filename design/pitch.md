@@ -6,7 +6,7 @@ Making plans with friends is easy. Getting everyone to show up is harder. Someon
 
 PullUp is a plan page you share in the group chat. It gives everyone one place to check whether the plan is happening, who’s coming, and who’s on their way.
 
-**Decide-by.** Each plan has a deadline to decide, usually a few hours before it starts. Until then, you can say maybe. After the deadline, anyone still undecided is counted as not coming.
+**Decide-by.** Each plan has a deadline to decide, usually a few hours before it starts. Until then, you can say maybe. After the deadline, anyone still undecided isn't counted as coming, but their maybe stays visible, so the organizer can tell a never-decided from a no.
 
 That gives the organizer a headcount they can actually use to book a table or figure out whether the plan is worth keeping. It also gives everyone else a clear moment to commit. Instead of waking up to another “so are we still going?” thread, you can check the page.
 

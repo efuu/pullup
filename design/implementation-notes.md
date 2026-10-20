@@ -1,4 +1,4 @@
-# Implementation notes (P2)
+# Implementation notes
 
 Technical record of how the alpha was built: the plan, what changed from the P1
 design and why, and what is left for P3. The reflective side of this lives in the
@@ -45,11 +45,9 @@ The order held. Steps 3 and 4 found the bugs listed below.
   argument. The specs say so now; the P1 versions said "now" in prose.
 - **Expiring maybes has no scheduler.** The P1 design treated `expireMaybes` as a
   time-triggered action, like `Expiring.expireResource` in Exercise 3. The engine
-  has no timers, so the viewing endpoint calls `expireMaybes` before forming the
-  page. Any visit after the deadline settles the headcount; nobody sees a stale
-  maybe. `expireMaybes` now always answers (with a count, 0 before the deadline)
-  instead of refusing when there is nothing to do, because a refusal inside the
-  view flow would have turned every page view into an error.
+  has no timers, so in the alpha the viewing endpoint called `expireMaybes` before
+  forming the page. (Superseded in the beta after staff feedback: maybes are no
+  longer rewritten at all; see "After staff feedback" below.)
 - **PunctualityTracking.record takes two instants, not a computed lateness.** The
   P1 reaction computed `minutesLate` as `max(0, arrivedAt minus startTime)`, which
   would need a declared computation in sync-engine. Passing `dueAt` and `arrivedAt`
@@ -121,3 +119,46 @@ The order held. Steps 3 and 4 found the bugs listed below.
   invite, so probably yes) and say so in the design.
 - Rename, and recovering an identity on a new device, are out of scope for now.
 - Visual design.
+
+
+---
+
+# Beta (P3)
+
+## What was added
+
+- **Complete functionality.** Reschedule (organizer only, `/plans/reschedule`), correcting an ETA while on the way (`/plans/eta`), renaming without losing identity (`/me/rename`), and a cancelled plan that actually stops taking responses. That last one is a new `RSVPing.close` action plus a reaction: when `Planning.cancel` completes, close the plan's responses. The responses already given stay readable, so the page still shows who had said what.
+- **Every action reachable from the UI**, including the ones the alpha had endpoints-only or not at all. The plan page now shows cancelled and closed states, hides controls that cannot work, and explains disabled ones (the Maybe button after decide-by has a tooltip).
+- **Visual design** per [visual-study.md](visual-study.md): two faces, one accent, three status hues with one meaning each, warm paper. See the study for what was tried and dropped.
+- **Tests**: 15 → 24. Every action of every concept runs in at least one test; every refusal is asserted along with "nothing changed"; and `tests/journey.test.ts` runs the whole journey over HTTP against the real backend from an empty database. Output saved to `tests/last-run.txt`; the test helper follows the course's MongoDB guide (fresh random database per file, memory mode available).
+- **Deployment.** The backend now serves the built Vue app itself (`dist/`), `build` and `start` scripts match the platform, `packageManager` pins the Bun that wrote the lockfile, and `bun run preview` runs the production build locally the way the platform will.
+
+## Design changes since the alpha, and why
+
+- `RSVPing` gained `close(event)` and a `closed` flag. The alternative was to make the UI hide the buttons when the plan is cancelled, which leaves the backend accepting responses to a dead plan. Closing in RSVPing keeps the rule server-side, and RSVPing still knows nothing about Planning: the reaction connects them.
+- `_decideBy` answers `closed` too, so the page can explain *why* the buttons are gone.
+- No new concepts. Rename, reschedule and ETA correction were already actions in the P1 specs; they just had no endpoints.
+
+## What the checks caught this time
+
+- Changing `_decideBy`'s row shape broke a test's expectation before it broke any code: the typecheck in `bun run check` caught it.
+- The first version of the cancel reaction fired on `Planning.cancel` and called `RSVPing.close` before the endpoint had responded; harmless, but the journey test needed a short settle before asserting `closed`.
+
+## After staff feedback on P1 and P2
+
+Two things from the feedback changed the design.
+
+**Maybes are no longer rewritten.** Until now, viewing a plan after the decide-by time turned every leftover maybe into a no. That destroyed information: whether somebody said maybe or no still means something after the deadline, and the host in particular wants to see who said maybe and never followed up. The fix is to change the *interpretation* of the answer, not the answer. `RSVPing.expireMaybes` is gone; `respond` still refuses a *new* maybe after the deadline; and a new query `_standing(event, now)` reads each response as of a moment, marking a maybe past its decide-by as lapsed. The plan page is formed with the request's instant, so the count says "4 going · 1 can't · 1 never decided", the lapsed people are listed as what they said, and someone who lapsed is told they are not counted and asked to decide. Viewing a plan now mutates nothing, which is also simply a better property for a read. The concept tests check that a lapsed maybe is still a maybe in `_responses`, and the journey test checks it end to end.
+
+**Purposes are now the bad situation prevented.** Each concept's purpose used to describe the feature it provides ("let one person propose an outing"). They now say what goes wrong without it, e.g. RSVPing prevents hosts and attendees from acting on a headcount that undecided answers have inflated. That framing made one thing visible: the problem RSVPing solves could be solved other ways (over-provisioning, or resources that grow and shrink with turnout), and this is the one that fits a restaurant table.
+
+## Interaction-design pass (third check)
+
+Reviewed against the interaction-design rubric and fixed: "not you?" now asks before the browser forgets an identity (it was a one-click way to lose your on-time record on that device); any UNAUTHORIZED answer anywhere re-prompts for a name without losing the page you were on, instead of leaving a dead page; opening a plan link with no identity says "Someone sent you a plan" and the button reads "See the plan"; the plan page shows a loading line and the organizer gets a copy-link button next to the title, since sharing is their first job; the record page's back link returns to the plan you came from; buttons have a 40 px minimum height for thumbs; the tab title names the plan. The Vue code is now type-checked (`vue-tsc`) as part of `bun run check`, which it had not been before.
+
+## What remains for P4
+
+- Move the identity secret into an HttpOnly cookie (needs `PUBLIC_ORIGIN` wiring on the platform).
+- Push-based live updates instead of polling.
+- Decide whether a plan page should hide names from people who haven't responded.
+- A way to recover an identity on a new device (a short code).
