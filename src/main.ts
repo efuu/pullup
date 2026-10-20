@@ -16,7 +16,13 @@ const server = Bun.serve({
   port: Number(process.env.PORT ?? 3000),
   async fetch(request) {
     const file = Bun.file(dist + new URL(request.url).pathname);
-    return new Response((await file.exists()) ? file : Bun.file(`${dist}/index.html`));
+    if (await file.exists()) return new Response(file);
+    const index = Bun.file(`${dist}/index.html`);
+    if (await index.exists()) return new Response(index);
+    return new Response("The frontend hasn't been built. Run `bun run build` (on the platform: Build script = build).", {
+      status: 503,
+      headers: { "Content-Type": "text/plain" },
+    });
   },
   routes: {
     "/api/*": api,
