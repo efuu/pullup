@@ -6,6 +6,7 @@ import type { applicationConceptSet as ApplicationConceptSet } from "../src/conc
 type AtPath<T, P extends readonly string[]> = P extends readonly [infer H extends string, ...infer R extends string[]] ? H extends keyof T ? AtPath<T[H], R> : H extends `${number}` ? T extends readonly (infer Item)[] ? AtPath<Item, R> : never : never : T;
 type QueryRow<T> = T extends readonly (infer Row)[] ? Row : T;
 type AllOf<T extends readonly unknown[]> = T extends readonly [infer Head, ...infer Rest] ? Head & AllOf<Rest> : unknown;
+type OneOf<T extends readonly unknown[]> = T[number];
 type Jsonify<T> = T extends Date ? string : T extends null | boolean | number | string ? T : T extends (...args: never[]) => unknown ? never : T extends readonly (infer Item)[] ? Jsonify<Item>[] : T extends object ? { [K in keyof T]: Jsonify<T[K]> } : never;
 
 export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
@@ -46,14 +47,14 @@ export type PullUpWire = {
   };
   "/plans/arrive": {
     input: {
-      "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["arrive"]>[0], ["event"]>>;
+      "plan": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["arrive"]>[0], ["event"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_responses"]>[0], ["event"]>]>>;
       "secret": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["identify"]>[0], ["secret"]>>;
     };
     output: {
       "arrivedAt": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["arrive"]>>, ["arrivedAt"]>>;
       "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["arrive"]>[0], ["event"]>>;
     };
-    error: { error: AppWideError | "ALREADY_ARRIVED" | "ALREADY_RECORDED" | "INVALID_INPUT" | "UNKNOWN_SECRET" };
+    error: { error: AppWideError | "ALREADY_ARRIVED" | "ALREADY_RECORDED" | "INVALID_INPUT" | "NOT_GOING" | "UNKNOWN_SECRET" };
   };
   "/plans/cancel": {
     input: {
@@ -81,25 +82,25 @@ export type PullUpWire = {
   "/plans/eta": {
     input: {
       "etaMinutes": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["updateEta"]>[0], ["etaMinutes"]>>;
-      "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["updateEta"]>[0], ["event"]>>;
+      "plan": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["updateEta"]>[0], ["event"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_responses"]>[0], ["event"]>]>>;
       "secret": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["identify"]>[0], ["secret"]>>;
     };
     output: {
       "etaMinutes": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["updateEta"]>[0], ["etaMinutes"]>>;
       "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["updateEta"]>[0], ["event"]>>;
     };
-    error: { error: AppWideError | "INVALID_ETA" | "INVALID_INPUT" | "NOT_ON_THE_WAY" | "UNKNOWN_SECRET" };
+    error: { error: AppWideError | "INVALID_ETA" | "INVALID_INPUT" | "NOT_GOING" | "NOT_ON_THE_WAY" | "UNKNOWN_SECRET" };
   };
   "/plans/leave": {
     input: {
       "etaMinutes": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["leave"]>[0], ["etaMinutes"]>>;
-      "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["leave"]>[0], ["event"]>>;
+      "plan": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["leave"]>[0], ["event"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_responses"]>[0], ["event"]>]>>;
       "secret": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["identify"]>[0], ["secret"]>>;
     };
     output: {
       "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["leave"]>[0], ["event"]>>;
     };
-    error: { error: AppWideError | "ALREADY_LEFT" | "INVALID_ETA" | "INVALID_INPUT" | "UNKNOWN_SECRET" };
+    error: { error: AppWideError | "ALREADY_LEFT" | "INVALID_ETA" | "INVALID_INPUT" | "NOT_GOING" | "UNKNOWN_SECRET" };
   };
   "/plans/mine": {
     input: {
@@ -147,7 +148,7 @@ export type PullUpWire = {
   };
   "/plans/view": {
     input: {
-      "plan": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["_arrived"]>[0], ["event"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["_onTheWay"]>[0], ["event"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Planning"]["_details"]>[0], ["plan"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_decideBy"]>[0], ["event"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_standing"]>[0], ["event"]>]>>;
+      "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Planning"]["_details"]>[0], ["plan"]>>;
       "secret": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["identify"]>[0], ["secret"]>>;
     };
     output: {
@@ -184,7 +185,7 @@ export type PullUpWire = {
       };
       "viewer": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Identifying"]["identify"]>>, ["user"]>>;
     };
-    error: { error: AppWideError | "INVALID_INPUT" | "UNKNOWN_SECRET" };
+    error: { error: AppWideError | "INVALID_INPUT" | "UNKNOWN_PLAN" | "UNKNOWN_SECRET" };
   };
   "/records/view": {
     input: {
@@ -245,14 +246,14 @@ export type PullUpWireHttp = {
   };
   "/plans/arrive": {
     input: {
-      "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["arrive"]>[0], ["event"]>>;
+      "plan": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["arrive"]>[0], ["event"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_responses"]>[0], ["event"]>]>>;
       "secret": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["identify"]>[0], ["secret"]>>;
     };
     output: {
       "arrivedAt": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["arrive"]>>, ["arrivedAt"]>>;
       "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["arrive"]>[0], ["event"]>>;
     };
-    error: { error: HttpAppWideError | "CONFLICT" | "INVALID_REQUEST" | "UNAUTHORIZED" };
+    error: { error: HttpAppWideError | "CONFLICT" | "FORBIDDEN" | "INVALID_REQUEST" | "UNAUTHORIZED" };
   };
   "/plans/cancel": {
     input: {
@@ -280,25 +281,25 @@ export type PullUpWireHttp = {
   "/plans/eta": {
     input: {
       "etaMinutes": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["updateEta"]>[0], ["etaMinutes"]>>;
-      "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["updateEta"]>[0], ["event"]>>;
+      "plan": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["updateEta"]>[0], ["event"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_responses"]>[0], ["event"]>]>>;
       "secret": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["identify"]>[0], ["secret"]>>;
     };
     output: {
       "etaMinutes": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["updateEta"]>[0], ["etaMinutes"]>>;
       "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["updateEta"]>[0], ["event"]>>;
     };
-    error: { error: HttpAppWideError | "CONFLICT" | "INVALID_REQUEST" | "UNAUTHORIZED" };
+    error: { error: HttpAppWideError | "CONFLICT" | "FORBIDDEN" | "INVALID_REQUEST" | "UNAUTHORIZED" };
   };
   "/plans/leave": {
     input: {
       "etaMinutes": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["leave"]>[0], ["etaMinutes"]>>;
-      "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["leave"]>[0], ["event"]>>;
+      "plan": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["leave"]>[0], ["event"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_responses"]>[0], ["event"]>]>>;
       "secret": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["identify"]>[0], ["secret"]>>;
     };
     output: {
       "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["leave"]>[0], ["event"]>>;
     };
-    error: { error: HttpAppWideError | "CONFLICT" | "INVALID_REQUEST" | "UNAUTHORIZED" };
+    error: { error: HttpAppWideError | "CONFLICT" | "FORBIDDEN" | "INVALID_REQUEST" | "UNAUTHORIZED" };
   };
   "/plans/mine": {
     input: {
@@ -346,7 +347,7 @@ export type PullUpWireHttp = {
   };
   "/plans/view": {
     input: {
-      "plan": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["_arrived"]>[0], ["event"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["ArrivalTracking"]["_onTheWay"]>[0], ["event"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Planning"]["_details"]>[0], ["plan"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_decideBy"]>[0], ["event"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["RSVPing"]["_standing"]>[0], ["event"]>]>>;
+      "plan": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Planning"]["_details"]>[0], ["plan"]>>;
       "secret": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Identifying"]["identify"]>[0], ["secret"]>>;
     };
     output: {
@@ -383,7 +384,7 @@ export type PullUpWireHttp = {
       };
       "viewer": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Identifying"]["identify"]>>, ["user"]>>;
     };
-    error: { error: HttpAppWideError | "INVALID_REQUEST" | "UNAUTHORIZED" };
+    error: { error: HttpAppWideError | "INVALID_REQUEST" | "NOT_FOUND" | "UNAUTHORIZED" };
   };
   "/records/view": {
     input: {

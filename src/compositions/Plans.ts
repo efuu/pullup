@@ -4,7 +4,7 @@
  * first, so a request can never act as someone else.
  */
 import { endpoint, receive, respond } from "@mit-sdg/sync-engine/boundary";
-import { each, form, former, now, reaction, when, where } from "@mit-sdg/sync-engine/language";
+import { each, form, former, no, now, reaction, view, when, where } from "@mit-sdg/sync-engine/language";
 import { concepts } from "../concepts.ts";
 import {
   createPlanInput,
@@ -129,7 +129,14 @@ const ViewPlan = endpoint(
     receive({ secret, plan })
       .where(now(instant))
       .then(Identifying.identify({ secret }).responds({ user }))
-      .then(respond({ viewer: user, page: PlanPage({ plan, now: instant }) })),
+      .then(
+        where(Planning._details({ plan }))
+          .then(respond({ viewer: user, page: PlanPage({ plan, now: instant }) }))
+          .named("found"),
+        where(no(Planning._details({ plan })))
+          .then(respond({ error: "UNKNOWN_PLAN" }))
+          .named("missing"),
+      ),
   { input: { required: ["secret", "plan"] }, validators: { input: secretPlanInput } },
 );
 
@@ -195,14 +202,26 @@ const CancelPlan = endpoint(
 
 // ---------------------------------------------------------------- Arriving
 
+/** The day-of actions are only for people who said they are going. */
+const isGoing = view("(user) is going to (plan)", ({ user, plan }) =>
+  where(RSVPing._responses({ event: plan }).is({ user, status: "GOING" })),
+).holds();
+
 const Leave = endpoint(
   "/plans/leave",
   ({ secret, user, plan, etaMinutes, instant }) =>
     receive({ secret, plan, etaMinutes })
       .where(now(instant))
       .then(Identifying.identify({ secret }).responds({ user }))
-      .then(ArrivalTracking.leave({ user, event: plan, etaMinutes, now: instant }).responds({}))
-      .then(respond({ plan })),
+      .then(
+        where(isGoing({ user, plan }))
+          .then(ArrivalTracking.leave({ user, event: plan, etaMinutes, now: instant }).responds({}))
+          .then(respond({ plan }))
+          .named("going"),
+        where(no(RSVPing._responses({ event: plan }).is({ user, status: "GOING" })))
+          .then(respond({ error: "NOT_GOING" }))
+          .named("not-going"),
+      ),
   { input: { required: ["secret", "plan", "etaMinutes"] }, validators: { input: leaveInput } },
 );
 
@@ -211,8 +230,15 @@ const UpdateEta = endpoint(
   ({ secret, user, plan, etaMinutes }) =>
     receive({ secret, plan, etaMinutes })
       .then(Identifying.identify({ secret }).responds({ user }))
-      .then(ArrivalTracking.updateEta({ user, event: plan, etaMinutes }).responds({}))
-      .then(respond({ plan, etaMinutes })),
+      .then(
+        where(isGoing({ user, plan }))
+          .then(ArrivalTracking.updateEta({ user, event: plan, etaMinutes }).responds({}))
+          .then(respond({ plan, etaMinutes }))
+          .named("going"),
+        where(no(RSVPing._responses({ event: plan }).is({ user, status: "GOING" })))
+          .then(respond({ error: "NOT_GOING" }))
+          .named("not-going"),
+      ),
   { input: { required: ["secret", "plan", "etaMinutes"] }, validators: { input: leaveInput } },
 );
 
@@ -222,8 +248,15 @@ const Arrive = endpoint(
     receive({ secret, plan })
       .where(now(instant))
       .then(Identifying.identify({ secret }).responds({ user }))
-      .then(ArrivalTracking.arrive({ user, event: plan, now: instant }).responds({ arrivedAt }))
-      .then(respond({ plan, arrivedAt })),
+      .then(
+        where(isGoing({ user, plan }))
+          .then(ArrivalTracking.arrive({ user, event: plan, now: instant }).responds({ arrivedAt }))
+          .then(respond({ plan, arrivedAt }))
+          .named("going"),
+        where(no(RSVPing._responses({ event: plan }).is({ user, status: "GOING" })))
+          .then(respond({ error: "NOT_GOING" }))
+          .named("not-going"),
+      ),
   { input: { required: ["secret", "plan"] }, validators: { input: secretPlanInput } },
 );
 
@@ -243,5 +276,5 @@ export const composition = {
   Viewing: { ViewPlan, PlanPage, MyPlans, PlanList },
   Responding: { Respond },
   Managing: { ReschedulePlan, CancelPlan, CancelClosesResponses },
-  Arriving: { Leave, UpdateEta, Arrive, RecordArrival },
+  Arriving: { isGoing, Leave, UpdateEta, Arrive, RecordArrival },
 };

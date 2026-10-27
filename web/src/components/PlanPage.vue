@@ -86,11 +86,11 @@ const respond = (status: Status) =>
     `You're ${statusLabel[status].toLowerCase()}.`,
   );
 const leave = () =>
-  act(() => client.plans.leave({ secret: secret(), plan: props.plan, etaMinutes: Number(eta.value) || 0 }), "You already said you're pulling up.", "Everyone can see you're on the way.");
+  act(() => client.plans.leave({ secret: secret(), plan: props.plan, etaMinutes: Number(eta.value) || 0 }), "Only people who said Going can pull up, and only once.", "Everyone can see you're on the way.");
 const saveEta = () =>
-  act(() => client.plans.eta({ secret: secret(), plan: props.plan, etaMinutes: Number(newEta.value) || 0 }), "You're not on the way right now.", "Estimate updated.").then(() => (editingEta.value = false));
+  act(() => client.plans.eta({ secret: secret(), plan: props.plan, etaMinutes: Number(newEta.value) || 0 }), "You can only fix an estimate while you're going and on the way.", "Estimate updated.").then(() => (editingEta.value = false));
 const arrive = () =>
-  act(() => client.plans.arrive({ secret: secret(), plan: props.plan }), "You're already marked as here.", "Marked as here.");
+  act(() => client.plans.arrive({ secret: secret(), plan: props.plan }), "Only people who said Going can pull up, and only once.", "Marked as here.");
 const cancel = () =>
   act(() => client.plans.cancel({ secret: secret(), plan: props.plan }), "Only the organizer can cancel this plan.", "Plan cancelled. Everyone will see it on the page.").then(() => (confirmCancel.value = false));
 const reschedule = () => {

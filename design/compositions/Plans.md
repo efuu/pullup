@@ -19,7 +19,8 @@ Plans.Creating.CreatePlan at /plans/create
 ## Viewing
 
 [Viewing a plan](reaction:Plans.Viewing.ViewPlan) reads the plan as of the moment of
-the request and changes nothing. The response is [the plan page](former:Plans.Viewing.PlanPage):
+the request and changes nothing; a link to a plan that does not exist answers
+UNKNOWN_PLAN rather than hanging. The response is [the plan page](former:Plans.Viewing.PlanPage):
 the plan's details and decide-by time, every response with the responder's name,
 on-time summary, and whether a maybe has lapsed (the decide-by time passed and the
 person never decided, so they are not counted as coming, though their answer is kept
@@ -64,7 +65,10 @@ Plans.Managing.CancelPlan at /plans/cancel
 
 On the day, a user says they are [pulling up](reaction:Plans.Arriving.Leave) with an
 estimate in minutes, can [correct the estimate](reaction:Plans.Arriving.UpdateEta) while
-on the way, and says when they have [pulled up](reaction:Plans.Arriving.Arrive).
+on the way, and says when they have [pulled up](reaction:Plans.Arriving.Arrive). All three
+require that [the user said they are going](view:Plans.Arriving.isGoing); anyone else gets
+NOT_GOING, on the backend, whatever the page showed them. Someone who is not coming has no
+business on the board, and this is the kind of rule that must not live only in the UI.
 Arriving is what [writes the on-time record](reaction:Plans.Arriving.RecordArrival): a
 reaction on the arrival looks up the plan's start time and hands both instants to
 PunctualityTracking, which decides how late that was. Neither ArrivalTracking nor

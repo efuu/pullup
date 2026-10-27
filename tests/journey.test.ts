@@ -80,6 +80,7 @@ describe("the beta journey over HTTP", () => {
     expect(view.page.responses).toEqual([{ user: sam.user, name: "Sam", status: "GOING", lapsed: false, onTime: 0, total: 0 }]);
     expect(view.page.organizerName).toBe("Sam");
     expect(view.page.closed).toBe(false);
+    expect(await api("/plans/view", { secret: sam.secret, plan: "no-such-plan" })).toEqual({ error: "NOT_FOUND" });
   });
 
   test("others respond; a maybe lapses at decide-by but is kept; a new maybe is refused", async () => {
@@ -109,6 +110,9 @@ describe("the beta journey over HTTP", () => {
   });
 
   test("pulling up, correcting the estimate, pulled up; arriving writes the record", async () => {
+    // Kenny never said Going (his maybe lapsed), so the day-of actions are refused on the backend.
+    expect(await api("/plans/leave", { secret: kenny.secret, plan, etaMinutes: 5 })).toEqual({ error: "FORBIDDEN" });
+    expect(await api("/plans/arrive", { secret: kenny.secret, plan })).toEqual({ error: "FORBIDDEN" });
     expect(await api("/plans/leave", { secret: dylan.secret, plan, etaMinutes: 8 })).toEqual({ plan });
     expect(await api("/plans/leave", { secret: dylan.secret, plan, etaMinutes: 8 })).toEqual({ error: "CONFLICT" });
     expect(await api("/plans/eta", { secret: dylan.secret, plan, etaMinutes: 3 })).toEqual({ plan, etaMinutes: 3 });

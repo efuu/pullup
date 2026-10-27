@@ -21,5 +21,6 @@ export const policy = httpPolicy({
     ALREADY_RECORDED: "CONFLICT",
     // Authored by the records endpoint, not a concept refusal; unmapped errors stay private.
     NOT_SHARED: "FORBIDDEN",
+    NOT_GOING: "FORBIDDEN",
   },
 });

@@ -35,7 +35,8 @@
     "build": "vite build",
     "preview": "bun run db:up && bun run build && NODE_ENV=production PORT=3000 bun run start",
     "test:save": "bun test tests --reporter=junit --reporter-outfile=tests/last-run.xml 2>&1 | tee tests/last-run.txt",
-    "typecheck:web": "vue-tsc --noEmit -p web/tsconfig.json"
+    "typecheck:web": "vue-tsc --noEmit -p web/tsconfig.json",
+    "test:deployed": "bun scripts/check-deployed.ts 2>&1 | tee tests/deployed-run.txt"
   },
   "name": "pullup",
   "overrides": {

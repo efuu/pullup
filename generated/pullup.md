@@ -135,6 +135,16 @@ Defined in [RSVPing](../design/concepts/RSVPing.md), line 1.
 
 _Views name reusable conditions. Multiple `where` blocks are alternatives._
 
+### (user) is going to (plan)
+
+Authored path: `Plans.Arriving.isGoing`.
+- Covered by [Plans](../design/compositions/Plans.md), line 69.
+
+```view
+(user) is going to (plan) — inputs (user, plan); outputs (); bindings ()
+  where RSVPing._responses (event: plan) has (status: "GOING", user)
+```
+
 ### (viewer) shares a plan with (target)
 
 Authored path: `Records.Viewing.sharesAPlan`.
@@ -153,7 +163,7 @@ _the authored explanation; this section records the generated shape._
 ### the plan list of (user)
 
 Authored path: `Plans.Viewing.PlanList`.
-- Covered by [Plans](../design/compositions/Plans.md), line 36.
+- Covered by [Plans](../design/compositions/Plans.md), line 37.
 
 ```former
 Former "the plan list of (user)" — inputs (user); bindings (event, status, title, place, startTime, cancelled, organizer); promises exactly one record — forms:
@@ -173,7 +183,7 @@ Former "the plan list of (user)" — inputs (user); bindings (event, status, tit
 ### the plan page (plan) as read at (now)
 
 Authored path: `Plans.Viewing.PlanPage`.
-- Covered by [Plans](../design/compositions/Plans.md), line 22.
+- Covered by [Plans](../design/compositions/Plans.md), line 23.
 
 ```former
 Former "the plan page (plan) as read at (now)" — inputs (plan, now); bindings (organizer, organizerName, title, place, startTime, cancelled, decideBy, closed, rUser, rName, rStatus, rLapsed, rOnTime, rTotal, wUser, wName, wLeftAt, wEta, aUser, aName, aLeftAt, aArrivedAt); promises exactly one record — forms:
@@ -357,8 +367,8 @@ then
 ### Plans.Arriving.Arrive
 
 Authored path: `Plans.Arriving.Arrive`.
-- Covered by [Plans](../design/compositions/Plans.md), line 67.
-- Covered by [Plans](../design/compositions/Plans.md), line 76.
+- Covered by [Plans](../design/compositions/Plans.md), line 68.
+- Covered by [Plans](../design/compositions/Plans.md), line 80.
 
 ```reaction
 when RequestBoundary.request (path: "/plans/arrive", plan, requestId, secret)
@@ -368,40 +378,56 @@ then
   Identifying.identify (secret)
 ```
 
-### Plans.Arriving.Arrive#2
+### Plans.Arriving.Arrive:going#2
 
 Authored path: `Plans.Arriving.Arrive`.
-- Covered by [Plans](../design/compositions/Plans.md), line 67.
-- Covered by [Plans](../design/compositions/Plans.md), line 76.
+- Covered by [Plans](../design/compositions/Plans.md), line 68.
+- Covered by [Plans](../design/compositions/Plans.md), line 80.
 
 ```reaction
 when Identifying.identify (secret, user), asked by Plans.Arriving.Arrive
 where
   earlier, RequestBoundary.request (path: "/plans/arrive", plan, requestId, secret)
+  view "(user) is going to (plan)" with (plan, user)
   instant is the current flow's instant
 then
   ArrivalTracking.arrive (event: plan, now: instant, user)
 ```
 
-### Plans.Arriving.Arrive#3
+### Plans.Arriving.Arrive:going#3
 
 Authored path: `Plans.Arriving.Arrive`.
-- Covered by [Plans](../design/compositions/Plans.md), line 67.
-- Covered by [Plans](../design/compositions/Plans.md), line 76.
+- Covered by [Plans](../design/compositions/Plans.md), line 68.
+- Covered by [Plans](../design/compositions/Plans.md), line 80.
 
 ```reaction
-when ArrivalTracking.arrive (event: plan, now: instant, user, arrivedAt), asked by Plans.Arriving.Arrive#2
+when ArrivalTracking.arrive (event: plan, now: instant, user, arrivedAt), asked by Plans.Arriving.Arrive:going#2
 where
   earlier, RequestBoundary.request (path: "/plans/arrive", plan, requestId, secret)
 then
   RequestBoundary.respond (arrivedAt, plan, requestId)
 ```
 
+### Plans.Arriving.Arrive:not-going#2
+
+Authored path: `Plans.Arriving.Arrive`.
+- Covered by [Plans](../design/compositions/Plans.md), line 68.
+- Covered by [Plans](../design/compositions/Plans.md), line 80.
+
+```reaction
+when Identifying.identify (secret, user), asked by Plans.Arriving.Arrive
+where
+  earlier, RequestBoundary.request (path: "/plans/arrive", plan, requestId, secret)
+  no RSVPing._responses (event: plan) has (status: "GOING", user)
+then
+  RequestBoundary.respond (error: "NOT_GOING", requestId)
+```
+
 ### Plans.Arriving.Leave
 
 Authored path: `Plans.Arriving.Leave`.
-- Covered by [Plans](../design/compositions/Plans.md), line 65.
-- Covered by [Plans](../design/compositions/Plans.md), line 74.
+- Covered by [Plans](../design/compositions/Plans.md), line 66.
+- Covered by [Plans](../design/compositions/Plans.md), line 78.
 
 ```reaction
 when RequestBoundary.request (etaMinutes, path: "/plans/leave", plan, requestId, secret)
@@ -411,39 +437,55 @@ then
   Identifying.identify (secret)
 ```
 
-### Plans.Arriving.Leave#2
+### Plans.Arriving.Leave:going#2
 
 Authored path: `Plans.Arriving.Leave`.
-- Covered by [Plans](../design/compositions/Plans.md), line 65.
-- Covered by [Plans](../design/compositions/Plans.md), line 74.
+- Covered by [Plans](../design/compositions/Plans.md), line 66.
+- Covered by [Plans](../design/compositions/Plans.md), line 78.
 
 ```reaction
 when Identifying.identify (secret, user), asked by Plans.Arriving.Leave
 where
   earlier, RequestBoundary.request (etaMinutes, path: "/plans/leave", plan, requestId, secret)
+  view "(user) is going to (plan)" with (plan, user)
   instant is the current flow's instant
 then
   ArrivalTracking.leave (etaMinutes, event: plan, now: instant, user)
 ```
 
-### Plans.Arriving.Leave#3
+### Plans.Arriving.Leave:going#3
 
 Authored path: `Plans.Arriving.Leave`.
-- Covered by [Plans](../design/compositions/Plans.md), line 65.
-- Covered by [Plans](../design/compositions/Plans.md), line 74.
+- Covered by [Plans](../design/compositions/Plans.md), line 66.
+- Covered by [Plans](../design/compositions/Plans.md), line 78.
 
 ```reaction
-when ArrivalTracking.leave (etaMinutes, event: plan, now: instant, user), asked by Plans.Arriving.Leave#2
+when ArrivalTracking.leave (etaMinutes, event: plan, now: instant, user), asked by Plans.Arriving.Leave:going#2
 where
   earlier, RequestBoundary.request (etaMinutes, path: "/plans/leave", plan, requestId, secret)
 then
   RequestBoundary.respond (plan, requestId)
 ```
 
+### Plans.Arriving.Leave:not-going#2
+
+Authored path: `Plans.Arriving.Leave`.
+- Covered by [Plans](../design/compositions/Plans.md), line 66.
+- Covered by [Plans](../design/compositions/Plans.md), line 78.
+
+```reaction
+when Identifying.identify (secret, user), asked by Plans.Arriving.Leave
+where
+  earlier, RequestBoundary.request (etaMinutes, path: "/plans/leave", plan, requestId, secret)
+  no RSVPing._responses (event: plan) has (status: "GOING", user)
+then
+  RequestBoundary.respond (error: "NOT_GOING", requestId)
+```
+
 ### Plans.Arriving.RecordArrival
 
 Authored path: `Plans.Arriving.RecordArrival`.
-- Covered by [Plans](../design/compositions/Plans.md), line 68.
+- Covered by [Plans](../design/compositions/Plans.md), line 72.
 
 ```reaction
 when ArrivalTracking.arrive (event, user, arrivedAt)
@@ -456,8 +498,8 @@ then
 ### Plans.Arriving.UpdateEta
 
 Authored path: `Plans.Arriving.UpdateEta`.
-- Covered by [Plans](../design/compositions/Plans.md), line 66.
-- Covered by [Plans](../design/compositions/Plans.md), line 75.
+- Covered by [Plans](../design/compositions/Plans.md), line 67.
+- Covered by [Plans](../design/compositions/Plans.md), line 79.
 
 ```reaction
 when RequestBoundary.request (etaMinutes, path: "/plans/eta", plan, requestId, secret)
@@ -465,32 +507,48 @@ then
   Identifying.identify (secret)
 ```
 
-### Plans.Arriving.UpdateEta#2
+### Plans.Arriving.UpdateEta:going#2
 
 Authored path: `Plans.Arriving.UpdateEta`.
-- Covered by [Plans](../design/compositions/Plans.md), line 66.
-- Covered by [Plans](../design/compositions/Plans.md), line 75.
+- Covered by [Plans](../design/compositions/Plans.md), line 67.
+- Covered by [Plans](../design/compositions/Plans.md), line 79.
 
 ```reaction
 when Identifying.identify (secret, user), asked by Plans.Arriving.UpdateEta
 where
   earlier, RequestBoundary.request (etaMinutes, path: "/plans/eta", plan, requestId, secret)
+  view "(user) is going to (plan)" with (plan, user)
 then
   ArrivalTracking.updateEta (etaMinutes, event: plan, user)
 ```
 
-### Plans.Arriving.UpdateEta#3
+### Plans.Arriving.UpdateEta:going#3
 
 Authored path: `Plans.Arriving.UpdateEta`.
-- Covered by [Plans](../design/compositions/Plans.md), line 66.
-- Covered by [Plans](../design/compositions/Plans.md), line 75.
+- Covered by [Plans](../design/compositions/Plans.md), line 67.
+- Covered by [Plans](../design/compositions/Plans.md), line 79.
 
 ```reaction
-when ArrivalTracking.updateEta (etaMinutes, event: plan, user), asked by Plans.Arriving.UpdateEta#2
+when ArrivalTracking.updateEta (etaMinutes, event: plan, user), asked by Plans.Arriving.UpdateEta:going#2
 where
   earlier, RequestBoundary.request (etaMinutes, path: "/plans/eta", plan, requestId, secret)
 then
   RequestBoundary.respond (etaMinutes, plan, requestId)
+```
+
+### Plans.Arriving.UpdateEta:not-going#2
+
+Authored path: `Plans.Arriving.UpdateEta`.
+- Covered by [Plans](../design/compositions/Plans.md), line 67.
+- Covered by [Plans](../design/compositions/Plans.md), line 79.
+
+```reaction
+when Identifying.identify (secret, user), asked by Plans.Arriving.UpdateEta
+where
+  earlier, RequestBoundary.request (etaMinutes, path: "/plans/eta", plan, requestId, secret)
+  no RSVPing._responses (event: plan) has (status: "GOING", user)
+then
+  RequestBoundary.respond (error: "NOT_GOING", requestId)
 ```
 
 ### Plans.Creating.CreatePlan
@@ -567,7 +625,7 @@ then
 ### Plans.Managing.CancelClosesResponses
 
 Authored path: `Plans.Managing.CancelClosesResponses`.
-- Covered by [Plans](../design/compositions/Plans.md), line 55.
+- Covered by [Plans](../design/compositions/Plans.md), line 56.
 
 ```reaction
 when Planning.cancel (plan)
@@ -578,8 +636,8 @@ then
 ### Plans.Managing.CancelPlan
 
 Authored path: `Plans.Managing.CancelPlan`.
-- Covered by [Plans](../design/compositions/Plans.md), line 53.
-- Covered by [Plans](../design/compositions/Plans.md), line 60.
+- Covered by [Plans](../design/compositions/Plans.md), line 54.
+- Covered by [Plans](../design/compositions/Plans.md), line 61.
 
 ```reaction
 when RequestBoundary.request (path: "/plans/cancel", plan, requestId, secret)
@@ -590,8 +648,8 @@ then
 ### Plans.Managing.CancelPlan#2
 
 Authored path: `Plans.Managing.CancelPlan`.
-- Covered by [Plans](../design/compositions/Plans.md), line 53.
-- Covered by [Plans](../design/compositions/Plans.md), line 60.
+- Covered by [Plans](../design/compositions/Plans.md), line 54.
+- Covered by [Plans](../design/compositions/Plans.md), line 61.
 
 ```reaction
 when Identifying.identify (secret, user), asked by Plans.Managing.CancelPlan
@@ -604,8 +662,8 @@ then
 ### Plans.Managing.CancelPlan#3
 
 Authored path: `Plans.Managing.CancelPlan`.
-- Covered by [Plans](../design/compositions/Plans.md), line 53.
-- Covered by [Plans](../design/compositions/Plans.md), line 60.
+- Covered by [Plans](../design/compositions/Plans.md), line 54.
+- Covered by [Plans](../design/compositions/Plans.md), line 61.
 
 ```reaction
 when Planning.cancel (organizer: user, plan), asked by Plans.Managing.CancelPlan#2
@@ -618,8 +676,8 @@ then
 ### Plans.Managing.ReschedulePlan
 
 Authored path: `Plans.Managing.ReschedulePlan`.
-- Covered by [Plans](../design/compositions/Plans.md), line 52.
-- Covered by [Plans](../design/compositions/Plans.md), line 59.
+- Covered by [Plans](../design/compositions/Plans.md), line 53.
+- Covered by [Plans](../design/compositions/Plans.md), line 60.
 
 ```reaction
 when RequestBoundary.request (path: "/plans/reschedule", plan, requestId, secret, startTime)
@@ -630,8 +688,8 @@ then
 ### Plans.Managing.ReschedulePlan#2
 
 Authored path: `Plans.Managing.ReschedulePlan`.
-- Covered by [Plans](../design/compositions/Plans.md), line 52.
-- Covered by [Plans](../design/compositions/Plans.md), line 59.
+- Covered by [Plans](../design/compositions/Plans.md), line 53.
+- Covered by [Plans](../design/compositions/Plans.md), line 60.
 
 ```reaction
 when Identifying.identify (secret, user), asked by Plans.Managing.ReschedulePlan
@@ -644,8 +702,8 @@ then
 ### Plans.Managing.ReschedulePlan#3
 
 Authored path: `Plans.Managing.ReschedulePlan`.
-- Covered by [Plans](../design/compositions/Plans.md), line 52.
-- Covered by [Plans](../design/compositions/Plans.md), line 59.
+- Covered by [Plans](../design/compositions/Plans.md), line 53.
+- Covered by [Plans](../design/compositions/Plans.md), line 60.
 
 ```reaction
 when Planning.reschedule (organizer: user, plan, startTime), asked by Plans.Managing.ReschedulePlan#2
@@ -658,8 +716,8 @@ then
 ### Plans.Responding.Respond
 
 Authored path: `Plans.Responding.Respond`.
-- Covered by [Plans](../design/compositions/Plans.md), line 45.
-- Covered by [Plans](../design/compositions/Plans.md), line 49.
+- Covered by [Plans](../design/compositions/Plans.md), line 46.
+- Covered by [Plans](../design/compositions/Plans.md), line 50.
 
 ```reaction
 when RequestBoundary.request (path: "/plans/respond", plan, requestId, secret, status)
@@ -672,8 +730,8 @@ then
 ### Plans.Responding.Respond#2
 
 Authored path: `Plans.Responding.Respond`.
-- Covered by [Plans](../design/compositions/Plans.md), line 45.
-- Covered by [Plans](../design/compositions/Plans.md), line 49.
+- Covered by [Plans](../design/compositions/Plans.md), line 46.
+- Covered by [Plans](../design/compositions/Plans.md), line 50.
 
 ```reaction
 when Identifying.identify (secret, user), asked by Plans.Responding.Respond
@@ -687,8 +745,8 @@ then
 ### Plans.Responding.Respond#3
 
 Authored path: `Plans.Responding.Respond`.
-- Covered by [Plans](../design/compositions/Plans.md), line 45.
-- Covered by [Plans](../design/compositions/Plans.md), line 49.
+- Covered by [Plans](../design/compositions/Plans.md), line 46.
+- Covered by [Plans](../design/compositions/Plans.md), line 50.
 
 ```reaction
 when RSVPing.respond (event: plan, now: instant, status, user), asked by Plans.Responding.Respond#2
@@ -701,8 +759,8 @@ then
 ### Plans.Viewing.MyPlans
 
 Authored path: `Plans.Viewing.MyPlans`.
-- Covered by [Plans](../design/compositions/Plans.md), line 35.
-- Covered by [Plans](../design/compositions/Plans.md), line 40.
+- Covered by [Plans](../design/compositions/Plans.md), line 36.
+- Covered by [Plans](../design/compositions/Plans.md), line 41.
 
 ```reaction
 when RequestBoundary.request (path: "/plans/mine", requestId, secret)
@@ -713,8 +771,8 @@ then
 ### Plans.Viewing.MyPlans#2
 
 Authored path: `Plans.Viewing.MyPlans`.
-- Covered by [Plans](../design/compositions/Plans.md), line 35.
-- Covered by [Plans](../design/compositions/Plans.md), line 40.
+- Covered by [Plans](../design/compositions/Plans.md), line 36.
+- Covered by [Plans](../design/compositions/Plans.md), line 41.
 
 ```reaction
 when Identifying.identify (secret, user), asked by Plans.Viewing.MyPlans
@@ -728,7 +786,7 @@ then
 
 Authored path: `Plans.Viewing.ViewPlan`.
 - Covered by [Plans](../design/compositions/Plans.md), line 21.
-- Covered by [Plans](../design/compositions/Plans.md), line 32.
+- Covered by [Plans](../design/compositions/Plans.md), line 33.
 
 ```reaction
 when RequestBoundary.request (path: "/plans/view", plan, requestId, secret)
@@ -738,19 +796,35 @@ then
   Identifying.identify (secret)
 ```
 
-### Plans.Viewing.ViewPlan#2
+### Plans.Viewing.ViewPlan:found#2
 
 Authored path: `Plans.Viewing.ViewPlan`.
 - Covered by [Plans](../design/compositions/Plans.md), line 21.
-- Covered by [Plans](../design/compositions/Plans.md), line 32.
+- Covered by [Plans](../design/compositions/Plans.md), line 33.
 
 ```reaction
 when Identifying.identify (secret, user), asked by Plans.Viewing.ViewPlan
 where
   earlier, RequestBoundary.request (path: "/plans/view", plan, requestId, secret)
+  Planning._details (plan)
   instant is the current flow's instant
 then
   RequestBoundary.respond (page: former "the plan page (plan) as read at (now)" with (now: instant, plan), requestId, viewer: user)
+```
+
+### Plans.Viewing.ViewPlan:missing#2
+
+Authored path: `Plans.Viewing.ViewPlan`.
+- Covered by [Plans](../design/compositions/Plans.md), line 21.
+- Covered by [Plans](../design/compositions/Plans.md), line 33.
+
+```reaction
+when Identifying.identify (secret, user), asked by Plans.Viewing.ViewPlan
+where
+  earlier, RequestBoundary.request (path: "/plans/view", plan, requestId, secret)
+  no Planning._details (plan)
+then
+  RequestBoundary.respond (error: "UNKNOWN_PLAN", requestId)
 ```
 
 ### Records.Viewing.ViewRecord
