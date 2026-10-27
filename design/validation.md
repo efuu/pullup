@@ -31,6 +31,10 @@ Checked on `bun run preview` (the build the platform runs), in one browser as th
 | Phone width (375 px) | hand | header, forms and buttons wrap; nothing overflows |
 | Health, static files, deep-link reload | curl | `/health` ok; `/` and `/anything` serve the app |
 
+## Deployed app (P4)
+
+`bun run test:deployed` runs `scripts/check-deployed.ts` against https://pullup.mit-sdg.dev: health and the served page; persistence (create, respond, read back through fresh requests, plan list); access control (non-organizer cancel and reschedule, not-going person pulling up, stranger reading a record); error handling (unknown secret, blank name, extra field, unknown plan, start in the past, double pull-up, responding to a cancelled plan). Output: [`../tests/deployed-run.txt`](../tests/deployed-run.txt).
+
 ## Open problems
 
 - If the organizer reschedules after people have arrived, the board's "+N" (from the current start time) and the record's minutes late (fixed when the arrival happened) can disagree. Rescheduling after the start is rare; a later fix is to refuse it in Planning.

@@ -162,3 +162,14 @@ Reviewed against the interaction-design rubric and fixed: "not you?" now asks be
 - Push-based live updates instead of polling.
 - Decide whether a plan page should hide names from people who haven't responded.
 - A way to recover an identity on a new device (a short code).
+
+
+---
+
+# Code complete (P4)
+
+- **Access-control review found one hole.** The day-of actions (pulling up, fixing the estimate, pulled up) were only hidden in the UI for people who had not said Going; the backend accepted them from anyone identified. Added an `isGoing` view and NOT_GOING branches on all three endpoints. The deployed check caught it before I did.
+- **Viewing an unknown plan stopped answering.** Removing `expireMaybes` from the view path (after the maybe-interpretation change) also removed the refusal that used to produce NOT_FOUND; the page former just dropped and the request hung into an error. Explicit found / missing branches now answer UNKNOWN_PLAN. Also caught by the deployed check, which is the argument for having one.
+- **Deployed-app check** (`scripts/check-deployed.ts`, `bun run test:deployed`): persistence through fresh requests, every access-control rule, and the boundary's error handling against the live URL; output saved to `tests/deployed-run.txt`.
+- **Design document** written: [design-document.md](design-document.md).
+- README reorganized around what a stranger needs: what it is, where it runs, the documents, how to run and test.
