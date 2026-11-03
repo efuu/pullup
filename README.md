@@ -15,7 +15,8 @@ A plan page you paste into the group chat: who is actually coming, who has actua
 - [Concept specs](design/concepts/) · [Compositions](design/compositions/) (endpoints, reactions, views, formers) · [Types and bindings](design/types.md)
 - [Problem framing](design/problem-framing.md) · [Pitch](design/pitch.md) · [User journey](design/user-journey.md) · [UI sketches](design/sketches.md)
 - [Visual design study](design/visual-study.md) · [Validation log](design/validation.md) · [Implementation notes](design/implementation-notes.md) (chronological)
-- Design notebook: private repo, [efuu/6.1040 → reflections/design-notebook.md](https://github.com/efuu/6.1040/blob/main/reflections/design-notebook.md)
+- [User testing](design/user-testing.md): task list, two study reports, flaws and opportunities (P5)
+- Design notebook and project reflection: private repo, [efuu/6.1040 → reflections/](https://github.com/efuu/6.1040/tree/main/reflections)
 
 ## Running locally
 
@@ -55,7 +56,7 @@ src/concepts/  concept classes (MongoDB) + registrations
 src/compositions/  endpoints, reactions, views, formers
 tests/         concept suites, journey test, saved outputs
 web/           Vue frontend
-scripts/       smoke and deployed checks
+scripts/       smoke, deployed check, and live seed (user-testing data)
 ```
 
 Stack: Bun, MongoDB, [sync-engine](https://github.com/mit-sdg/sync-engine) 1.1.0, Vue 3.
